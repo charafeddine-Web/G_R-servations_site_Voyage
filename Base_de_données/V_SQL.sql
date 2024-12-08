@@ -10,7 +10,6 @@ telephone varchar(15),
 adresse text,
 date_naissance date
 );
-use agence_de_voyage;
 
 create table activites(
 id_activite INT  primary key not null auto_increment,
@@ -56,6 +55,20 @@ VALUES
 (3, 3, CURRENT_TIMESTAMP, 'Annulée');
 
 
+/********************************* Mise à jour des tables******************************************/
+ALTER TABLE client MODIFY adresse VARCHAR(200) NOT NULL;
+ALTER TABLE client DROP date_naissance;
+ALTER TABLE activites CHANGE description descriptione TEXT;
+ALTER TABLE reservations ADD mode_paiement ENUM('Carte', 'Espèces', 'Virement', 'Chèque') DEFAULT 'Carte';
+ALTER TABLE reservations MODIFY status ENUM('En_attente', 'Confirmée', 'Annulée') DEFAULT 'En_attente';
+
+ALTER TABLE activities 
+ADD CONSTRAINT Just_test1 
+FOREIGN KEY (id_test) 
+REFERENCES Test(id_test2) 
+ON DELETE CASCADE;
+
+
 /****************************** Update Activite **************************************************/
 update activites 
 set 
@@ -66,11 +79,17 @@ date_debut="2024-12-25",
 date_fin="2024-05-25",
 places_disponibles=5
 where id_activite=1;
-/*select * from activites;*/
+
+/* test just if donner exist ->
+select * from activites;
+*/
 
 /*******************************DELETE RESERVATION **************************************************/
-select * from reservations;
 DELETE from reservations where id_reservation=1;
+
+/* just test if data exists ->
+select * from reservations;
+*/
 
 /************************************Jointure*********************************************************/
 
