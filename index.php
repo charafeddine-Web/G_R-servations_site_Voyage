@@ -1,35 +1,42 @@
-<?php 
-require("./code/connection.php"); 
+<?php
+require("./code/connection.php");
 
-if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])){
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
 
-    $nom =trim(htmlspecialchars($_POST['nom']));
-    $prenom=trim(htmlspecialchars($_POST['prenom']));
-    $email=trim(htmlspecialchars($_POST['email']));
-    $telephone=trim(htmlspecialchars($_POST['telephone']));
-    $adresse=trim(htmlspecialchars($_POST['adresse']));
-    $date_naissance=trim(htmlspecialchars($_POST['date_naissance']));
+    $nom = trim(htmlspecialchars($_POST['nom']));
+    $prenom = trim(htmlspecialchars($_POST['prenom']));
+    $email = trim(htmlspecialchars($_POST['email']));
+    $telephone = trim(htmlspecialchars($_POST['telephone']));
+    $adresse = trim(htmlspecialchars($_POST['adresse']));
+    $date_naissance = trim(htmlspecialchars($_POST['date_naissance']));
+    
+    if (empty($nom) || empty($prenom) || empty($email) || empty($telephone) || empty($adresse) || empty($date_naissance)) {
+        die("Tous les champs sont requis.");
+    }
+    // if (!$nom || !$prenom || !$email || !$telephone || !$adresse || !$date_naissance) {
+    //     die("Veuillez remplir tous les champs");
+    // }
+    if (strlen($telephone) > 15) {
+        die(" phone < 15 char  ");
+        ;
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        die("Adresse email invalide");
+    }
 
-if(!$nom || !$prenom || !$email || !$telephone || !$adresse || !$date_naissance){
-    die("Veuillez remplir tous les champs") ;
-}
-if(strlen($telephone) >15){
-    die(" phone < 15 char  ") ;;
-}
 
 
-
-$sql_insert= "INSERT INTO clients(nom,prenom,email,telephone,adresse,date_naissance)
+    $sql_insert = "INSERT INTO clients(nom,prenom,email,telephone,adresse,date_naissance)
 values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
 
-    
-if(mysqli_query($connect, $sql_insert)) {
-        echo " Error: " . $sql_insert . "<br>" . mysqli_error($connect);
-}else{
-        echo" donner ajouter avec succés";
-        header("location: ./index.php");
+
+    if (!mysqli_query($connect, $sql_insert)) {
+        echo "Erreur : " . mysqli_error($connect);
+    } else {
+        echo "Données ajoutées avec succès";
+        header("Location: ./index.php");
         exit();
-}
+    }
 
 
 
@@ -40,6 +47,7 @@ if(mysqli_query($connect, $sql_insert)) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -84,7 +92,7 @@ if(mysqli_query($connect, $sql_insert)) {
 
                 <div class="flex w-full pt-2 content-center justify-between md:w-1/3 md:justify-end">
                     <ul class="list-reset flex justify-between flex-1 md:flex-none items-center">
-                      <!--   <li class="flex-1 md:flex-none md:mr-3">
+                        <!--   <li class="flex-1 md:flex-none md:mr-3">
                         <a class="inline-block py-2 px-4 text-white no-underline" href="#">Active</a>
                     </li>
                     <li class="flex-1 md:flex-none md:mr-3">
@@ -259,129 +267,126 @@ if(mysqli_query($connect, $sql_insert)) {
                             </div>
                         </div>
                     </div>
+                    <div id='centeredFormModal'
+                        class="modal-wrapper hidden fixed md:right-80 md:left-80 left-0 top-10 md:top-20 bg-gray-200 rounded-xl z-50">
+                        <div class="overlay close-modal"></div>
+                        <div class="modal modal-centered">
+                            <div class="modal-content shadow-lg p-5">
+                                <div class="border-b p-2 pb-3 pt-0 mb-4">
+                                    <div class="flex justify-between items-center">
+                                        Modal Client
+                                        <span
+                                            class='close-modal cursor-pointer px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200'>
+                                            <i class="fas fa-times text-gray-700"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <form id='form_id' class="w-full" method="POST" action="index.php">
+                                    <div class="flex flex-wrap -mx-3 mb-6">
+                                        <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                                            <label
+                                                class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1"
+                                                for="nom">
+                                                Nom
+                                            </label>
+                                            <input
+                                                class="appearance-none block w-full  text-gray-700 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white-500"
+                                                id="nom" name="nom" type="text" placeholder="">
+                                            <p class="text-red-500 text-xs italic"></p>
+                                        </div>
+                                        <div class="w-full md:w-1/2 px-3">
+                                            <label
+                                                class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1"
+                                                for="prenom">
+                                                Prenom
+                                            </label>
+                                            <input
+                                                class="appearance-none block w-full  text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                                id="prenom" name="prenom" type="text" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-wrap -mx-3 mb-6">
+                                        <div class="w-full px-3">
+                                            <label
+                                                class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1"
+                                                for="email">
+                                                Email
+                                            </label>
+                                            <input
+                                                class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-grey"
+                                                id="email" type="email" name="email" placeholder="example@gmail.com">
+                                            <p class="text-grey-dark text-xs italic"></p>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-center  -mx-3 mb-2 ">
+                                        <div class=" w-full px-3 mb-6 md:mb-0">
+                                            <label
+                                                class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1"
+                                                for="telephone">
+                                                Phone
+                                            </label>
+                                            <input
+                                                class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
+                                                id="telephone" name="telephone" type="text" placeholder="2024-12-20">
+                                        </div>
+                                        <div class="w-full px-3 mb-6 md:mb-0">
+                                            <label
+                                                class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1"
+                                                for="adresse">
+                                                Adresse
+                                            </label>
+                                            <input
+                                                class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
+                                                id="adresse" name="adresse" type="text" placeholder="">
+                                        </div>
+
+                                    </div>
+                                    <div class="w-full">
+                                        <div class="  mb-6 md:mb-0">
+                                            <label
+                                                class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1"
+                                                for="date_naissance">
+                                                date Naissance
+                                            </label>
+                                            <input
+                                                class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
+                                                id="date_naissance" name="date_naissance" type="text" placeholder="">
+                                        </div>
+                                    </div>
+
+
+                                    <div class="mt-5">
+                                        <button type="submit" name="submit"
+                                            class='bg-green-500 hover:bg-green-800 text-white font-bold py-2 px-4 rounded'>
+                                            Submit
+                                        </button>
+
+                                        <button type="reset" name="reset"
+                                            class='close-modal cursor-pointer bg-red-200 hover:bg-red-500 text-red-900 font-bold py-2 px-4 rounded'>
+                                            Close
+                                        </button>
+
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                     <div class="flex flex-row flex-wrap flex-grow mt-2 w-full ">
                         <div class="flex flex-col mx-2  overflow-x-auto w-full ">
                             <div class="mb-2 border border-gray-300 rounded shadow-sm w-full">
                                 <div class="bg-gray-200 px-2 py-3 border-b flex items-center justify-between">
                                     <strong>Users Table</strong>
-                                    <div
-                                        class="mb-2 mx-2 ">
+                                    <div class="mb-2 mx-2 ">
                                         <div class="p-3">
                                             <button id="open-form"
                                                 class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                                                 Add Client
                                             </button>
                                         </div>
-                                        <div id='centeredFormModal' class="modal-wrapper hidden fixed md:right-80 md:left-80 left-0 top-10 md:top-20 bg-gray-200 rounded-xl z-50">
-                            <div class="overlay close-modal"></div>
-                            <div class="modal modal-centered">
-                                <div class="modal-content shadow-lg p-5">
-                                    <div class="border-b p-2 pb-3 pt-0 mb-4">
-                                        <div class="flex justify-between items-center">
-                                            Modal Client
-                                            <span
-                                                class='close-modal cursor-pointer px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200'>
-                                                <i class="fas fa-times text-gray-700"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <form id='form_id' class="w-full" method="POST" action="index.php">
-                                        <div class="flex flex-wrap -mx-3 mb-6">
-                                            <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                                                <label
-                                                    class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1"
-                                                    for="nom">
-                                                    Nom
-                                                </label>
-                                                <input
-                                                    class="appearance-none block w-full  text-gray-700 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white-500"
-                                                    id="nom" name="nom" type="text" placeholder="">
-                                                <p class="text-red-500 text-xs italic"></p>
-                                            </div>
-                                            <div class="w-full md:w-1/2 px-3">
-                                                <label
-                                                    class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1"
-                                                    for="prenom">
-                                                    Prenom
-                                                </label>
-                                                <input
-                                                    class="appearance-none block w-full  text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
-                                                    id="prenom" name="prenom" type="text" placeholder="">
-                                            </div>
-                                        </div>
-                                        <div class="flex flex-wrap -mx-3 mb-6">
-                                            <div class="w-full px-3">
-                                                <label
-                                                    class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1"
-                                                    for="email">
-                                                    Email
-                                                </label>
-                                                <input
-                                                    class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                    id="email" type="email" name="email"  placeholder="example@gmail.com">
-                                                <p class="text-grey-dark text-xs italic"></p>
-                                            </div>
-                                        </div>
-                                        <div class="flex justify-center  -mx-3 mb-2 ">
-                                            <div class=" w-full px-3 mb-6 md:mb-0">
-                                                <label
-                                                    class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1"
-                                                    for="telephone">
-                                                    Phone
-                                                </label>
-                                                <input
-                                                    class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                    id="telephone" name="telephone"  type="text" placeholder="2024-12-20">
-                                            </div>
-                                            <div class="w-full px-3 mb-6 md:mb-0">
-                                                <label
-                                                    class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1"
-                                                    for="adresse">
-                                                    Adresse
-                                                </label>
-                                                <input
-                                                    class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                    id="adresse" name="adresse" type="text" placeholder="">  
-                                            </div>
-                                            
-                                        </div>
-                                        <div class="w-full">
-                                            <div class="  mb-6 md:mb-0">
-                                                    <label
-                                                        class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1"
-                                                        for="date_naissance">
-                                                        date Naissance
-                                                    </label>
-                                                    <input
-                                                        class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                        id="date_naissance" name="date_naissance" type="text" placeholder="">
-                                            </div>
-                                        </div>
-                                      
-                                       
-                                        <div class="mt-5">
-                                            <button
-                                               type="submit"
-                                               name="submit"
-                                                class='bg-green-500 hover:bg-green-800 text-white font-bold py-2 px-4 rounded'>
-                                                Submit 
-                                            </button>
-                                           
-                                            <button
-                                            type="reset"
-                                            name="reset"
-                                             class='close-modal cursor-pointer bg-red-200 hover:bg-red-500 text-red-900 font-bold py-2 px-4 rounded'>
-                                            Close
-                                            </button>
-                                           
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+
                                     </div>
                                 </div>
-                                
+
                                 <div class="p-3 overflow-x-auto">
                                     <table class="table-auto w-full min-w-max border-collapse border">
                                         <thead>
@@ -399,42 +404,38 @@ if(mysqli_query($connect, $sql_insert)) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                           
-                                        <?php 
-                                                $sql_show = "SELECT * FROM clients";
+                                            <?php
+                                            $sql_show = "SELECT * FROM clients";
+                                            $result = mysqli_query($connect, $sql_show);
 
-                                                $result = mysqli_query($connect, $sql_show);
-                                                
-                                                if ($result) {
-                                                    while ($row = mysqli_fetch_assoc($result)) {
-                                                        echo " <tr> ";
-                                                        echo "<td class='border px-4 py-2'>$row[nom]</td>" ;
-                                                        echo "<td class='border px-4 py-2'>$row[prenom]</td>";
-                                                        echo "<td class='border px-4 py-2'>$row[email]</td>";
-                                                        echo "<td class='border px-4 py-2'>$row[telephone]</td>";
-                                                        echo "<td class='border px-4 py-2'>$row[adresse]</td>";
-                                                        echo "<td class='border px-4 py-2'>$row[date_naissance]</td>";
-                                                       echo "<td class='border px-4 py-2'>
-                                                        <a
-                                                            class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-green-500'>
-                                                            <i class='fas fa-eye'></i>
-                                                        </a>
-                                                        <a
-                                                            class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-blue-500'>
-                                                            <i class='fas fa-edit'></i>
-                                                        </a>
-                                                        <a class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-red-500'>
-                                                            <i class='fas fa-trash'></i>
-                                                        </a>
-                                                    </td> "."<br>";
-                                                   echo "</tr>";
-                                                    }
-                                                } else {
-                                                    echo "Erreur : " . mysqli_error($connect);
+                                            if ($result && mysqli_num_rows($result) > 0) {
+                                                while ($row = mysqli_fetch_assoc($result)) {
+                                                    echo "<tr>
+                                                        <td class='border px-4 py-2'>{$row['nom']}</td>
+                                                        <td class='border px-4 py-2'>{$row['prenom']}</td>
+                                                        <td class='border px-4 py-2'>{$row['email']}</td>
+                                                        <td class='border px-4 py-2'>{$row['telephone']}</td>
+                                                        <td class='border px-4 py-2'>{$row['adresse']}</td>
+                                                        <td class='border px-4 py-2'>{$row['date_naissance']}</td>
+                                                        <td class='border px-4 py-2'>
+                                                            <a class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-green-500'>
+                                                                <i class='fas fa-eye'></i>
+                                                            </a>
+                                                            <a class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-blue-500'>
+                                                                <i class='fas fa-edit'></i>
+                                                            </a>
+                                                            <a class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-red-500'>
+                                                                <i class='fas fa-trash'></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>";
                                                 }
+                                            } else {
+                                                echo "<tr><td colspan='7' class='text-center'>Aucun client trouvé.</td></tr>";
+                                            }
+                                            ?>
 
-                                                ?>
-                                               
+
                                         </tbody>
                                     </table>
                                 </div>
@@ -453,18 +454,18 @@ if(mysqli_query($connect, $sql_insert)) {
         function toggleDD(myDropMenu) {
             document.getElementById(myDropMenu).classList.toggle("invisible");
         }
-        let form=document.getElementById('centeredFormModal')
+        let form = document.getElementById('centeredFormModal')
 
-document.getElementById('open-form').addEventListener('click',function () {
-    form.classList.toggle('hidden');
-})
+        document.getElementById('open-form').addEventListener('click', function () {
+            form.classList.toggle('hidden');
+        })
 
-let close=document.querySelectorAll('.close-modal')
-close.forEach(element => {
-    element.addEventListener('click',function () {
-    form.classList.toggle('hidden');
-})
-});
+        let close = document.querySelectorAll('.close-modal')
+        close.forEach(element => {
+            element.addEventListener('click', function () {
+                form.classList.toggle('hidden');
+            })
+        });
 
         // function filterDD(myDropMenu, myDropMenuSearch) {
         //     var input, filter, ul, li, a, i;

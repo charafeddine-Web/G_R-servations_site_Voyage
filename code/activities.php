@@ -1,3 +1,54 @@
+<?php
+require("connection.php");
+
+if($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['submit'])){
+
+    $titre = trim(htmlspecialchars($_POST['titre']));
+    $destination =  trim(htmlspecialchars($_POST['destination'])) ;
+    $prix =  trim(htmlspecialchars($_POST['prix'])) ;
+    $date_debut =  trim(htmlspecialchars($_POST['date_debut'])) ;
+    $date_fin =  trim(htmlspecialchars($_POST['date_fin'])) ;
+    $places_disponibles =  trim(htmlspecialchars( $_POST['places_disponibles']));
+    $description =  trim(htmlspecialchars( $_POST['description']));
+
+    if (empty($titre) || empty($destination) || empty($prix) || empty($date_debut) || empty($date_fin) || empty($places_disponibles) || empty($description)) {
+        die("Tous les champs sont requis.");
+    }
+    if (!is_numeric($prix) || $prix <= 0) {
+        die("Le prix doit être un nombre positif.");
+    }
+
+    if (!is_numeric($places_disponibles) || $places_disponibles <= 0) {
+        die("Les places disponibles doivent être un entier positif.");
+    }
+    $date_debut_obj = DateTime::createFromFormat('Y-m-d', $date_debut);
+    $date_fin_obj = DateTime::createFromFormat('Y-m-d', $date_fin);
+    if (!$date_debut_obj || !$date_fin_obj || $date_debut_obj > $date_fin_obj) {
+        die("Les dates sont invalides ou incohérentes.");
+    }
+
+$sql_activites="INSERT INTO activites (titre,destination,prix,date_debut,date_fin,places_disponibles,description)
+values ('$titre','$destination','$prix','$date_debut','$date_fin','$places_disponibles','$description')";
+
+if($connect->query($sql_activites) == FALSE){
+    echo "Erreur : " . mysqli_error($connect);
+}else{
+    echo "Données ajoutées avec succès";
+    header("Location: activities.php");
+    exit();
+}
+
+
+}
+
+
+
+
+
+?>
+
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -127,7 +178,7 @@
                     </div>
                 </div>
             </nav>
-            <section class="w-full">
+            <section class="">
                 <div id="main" class="main-content flex-1 bg-gray-100 mt-12 md:mt-2 pb-24 w-full">
                     <div class="bg-gray-800 pt-3">
                         <div
@@ -136,13 +187,24 @@
                         </div>
                     </div>
 
-                    <div class='flex flex-1  flex-col md:flex-row lg:flex-row mx-2 w-full'>
+                    <div class='flex flex-1  flex-col md:flex-row lg:flex-row '>
                         <div
-                            class="mb-2 mx-2 ">
+                            class="mb-2 mx-4 flex items-center justify-end w-full ">
+                            
+                            <div class="p-3">
+                                <select name="" id=""class=" text-black font-bold py-2 px-4 rounded border border-gray-800">                                >
+                                    <option value="" select>Tri par : </option>
+                                    <option value="date_debut">Date Debut</option>
+                                    <option value="date_fin">Date Fin</option>
+                                    <option value="prix">Prix</option>
+                                    <option value="destination">Restination</option>
+                                </select>
+                                
+                            </div>
                             <div class="p-3">
                                 <button id="open-form"
-                                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                                    Add Activitie
+                                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded border border-gray-800">
+                                    New Activitie
                                 </button>
                             </div>
                         </div>
@@ -159,7 +221,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <form id='form_id' class="w-full ">
+                                    <form id='form_id' class="w-full " method="POST" action="activities.php">
                                         <div class="flex flex-wrap -mx-3 mb-6">
                                             <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                                                 <label
@@ -169,7 +231,7 @@
                                                 </label>
                                                 <input
                                                     class="appearance-none block w-full  text-gray-700 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white-500"
-                                                    id="titre" type="text" placeholder="trip">
+                                                    id="titre" name="titre" type="text" placeholder="trip">
                                                 <p class="text-red-500 text-xs italic"></p>
                                             </div>
                                             <div class="w-full md:w-1/2 px-3">
@@ -180,7 +242,7 @@
                                                 </label>
                                                 <input
                                                     class="appearance-none block w-full  text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
-                                                    id="destination" type="text" placeholder="Paris">
+                                                    id="destination" name="destination" type="text" placeholder="Paris">
                                             </div>
                                         </div>
                                         <div class="flex flex-wrap -mx-3 mb-6">
@@ -192,7 +254,7 @@
                                                 </label>
                                                 <input
                                                     class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                    id="prix" type="text" placeholder="99$">
+                                                    id="prix" name="prix" type="text" placeholder="99$">
                                                 <p class="text-grey-dark text-xs italic"></p>
                                             </div>
                                         </div>
@@ -205,7 +267,7 @@
                                                 </label>
                                                 <input
                                                     class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                    id="date_debut" type="text" placeholder="2024-12-20">
+                                                    id="date_debut" name="date_debut" type="text" placeholder="2024-12-20">
                                             </div>
                                             <div class="w-full px-3 mb-6 md:mb-0">
                                                 <label
@@ -215,7 +277,7 @@
                                                 </label>
                                                 <input
                                                     class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                    id="date_fin" type="text" placeholder="2024-01-01">  
+                                                    id="date_fin" name="date_fin" type="text" placeholder="2024-01-01">  
                                             </div>
                                             
                                         </div>
@@ -228,7 +290,7 @@
                                                     </label>
                                                     <input
                                                         class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                        id="places_disponibles" type="text" placeholder="10">
+                                                        id="places_disponibles" name="places_disponibles" type="text" placeholder="10">
                                             </div>
                                         </div>
                                         <div class="w-full">
@@ -240,18 +302,21 @@
                                                     </label>
                                                     <textarea
                                                         class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                        id="description"  placeholder="description">
+                                                        id="description" name="description"  placeholder="description">
                                                     </textarea>
                                             </div>
                                         </div>
                                        
 
                                         <div class="mt-1 flex justify-between ">
-                                        <span
+                                        <button
+                                        type="reset"   
                                             class='close-modal cursor-pointer bg-red-200 hover:bg-red-500 text-red-900 font-bold py-2 px-4 rounded'>
                                             Close
-                                        </span>
+                                        </button>
                                             <button
+                                            name="submit"
+                                            type="submit"
                                                 class='bg-green-500 hover:bg-green-800 text-white font-bold py-2 px-4 rounded'>
                                                 Submit 
                                             </button>
@@ -264,28 +329,66 @@
                         
                     </div>
                     <div class="flex flex-row flex-wrap flex-grow mt-2 w-full ">
-                        <div class="flex flex-col mx-2  overflow-x-auto w-full ">
+                        <div class="flex flex-col mx-2   w-full ">
                             <div class="mb-2 border border-gray-300 rounded shadow-sm w-full">
                                 <div class="bg-gray-200 px-2 py-3 border-b">
-                                    Users Table
+                                    Activities Table
                                 </div>
                                 <div class="p-3 overflow-x-auto">
                                     <table class="table-auto w-full min-w-max border-collapse border">
                                         <thead>
                                             <tr>
-                                                <th class="border px-4 py-2 text-left text-sm md:text-base">Name</th>
-                                                <th class="border px-4 py-2 text-left text-sm md:text-base">prenom</th>
-                                                <th class="border px-4 py-2 text-left text-sm md:text-base">email</th>
-                                                <th class="border px-4 py-2 text-left text-sm md:text-base">telephone
+                                                <th class="border px-4 py-2 text-left text-sm md:text-base">Titre</th>
+                                                <th class="border px-4 py-2 text-left text-sm md:text-base">Destination</th>
+                                                <th class="border px-4 py-2 text-left text-sm md:text-base">Prix</th>
+                                                <th class="border px-4 py-2 text-left text-sm md:text-base">Date debut
                                                 </th>
-                                                <th class="border px-4 py-2 text-left text-sm md:text-base">address</th>
+                                                <th class="border px-4 py-2 text-left text-sm md:text-base">Date Fin</th>
                                                 <th class="border px-4 py-2 text-left text-sm md:text-base">
-                                                    date_naissance</th>
+                                                Description</th>
+                                                <th class="border px-4 py-2 text-left text-sm md:text-base">Places Disponible</th>
                                                 <th class="border px-4 py-2 text-left text-sm md:text-base">Actions</th>
+
 
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <?php 
+                                            $sql="SELECT *  FROM activites";
+                                            $result = $connect->query($sql);
+                                            if($result->num_rows > 0){
+                                            while($row = $result->fetch_assoc()){
+                                                echo "<tr>";
+                                                echo "<td class='border px-4 py-2'> {$row['titre']}</td>";
+                                                echo "<td class='border px-4 py-2'> {$row['destination']}</td>";
+                                                echo "<td class='border px-4 py-2'> {$row['prix']}</td>";
+                                                echo "<td class='border px-4 py-2'> {$row['date_debut']}</td>";
+                                                echo "<td class='border px-4 py-2'> {$row['date_fin']}</td>";
+                                                echo "<td class='border px-4 py-2'> {$row['description']}</td>";
+                                                echo "<td class='border px-4 py-2'> {$row['places_disponibles']}</td>";
+                                                echo "<td class='border px-4 py-2'>
+                                                    <a
+                                                        class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-green-500'>
+                                                        <i class='fas fa-eye'></i>
+                                                    </a>
+                                                    <a
+                                                        class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-blue-500'>
+                                                        <i class='fas fa-edit'></i>
+                                                    </a>
+                                                    <a class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-red-500'>
+                                                        <i class='fas fa-trash'></i>
+                                                    </a>
+                                                </td>";
+                                                echo "</tr>";
+                                            }
+                                        }
+                                            
+                                            ?>
+
+
+
+
+<!-- 
                                             <tr>
                                                 <td class="border px-4 py-2">Micheal </td>
                                                 <td class="border px-4 py-2">Clarke</td>
@@ -307,7 +410,7 @@
                                                         <i class="fas fa-trash"></i>
                                                     </a>
                                                 </td>
-                                            </tr>
+                                            </tr> -->
                                         </tbody>
                                     </table>
                                 </div>

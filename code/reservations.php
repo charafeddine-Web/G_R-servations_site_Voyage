@@ -85,7 +85,7 @@
 
         <div class="flex flex-wrap items-center">
             <div class="flex flex-shrink md:w-1/3 justify-center md:justify-start text-white">
-                <a href="#" aria-label="Home">
+                <a href="../index.php" aria-label="Home">
                     <span class="text-xl pl-2"><img src="../assets/youcode.png" alt="logo" width="130"></i></span>
                 </a>
             </div>
