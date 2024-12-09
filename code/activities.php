@@ -192,7 +192,7 @@ if($connect->query($sql_activites) == FALSE){
                             class="mb-2 mx-4 flex items-center justify-end w-full ">
                             
                             <div class="p-3">
-                                <select name="" id=""class=" text-black font-bold py-2 px-4 rounded border border-gray-800">                                >
+                                <select name="" id=""class=" text-black font-bold py-2 px-4 rounded border border-gray-500">                                >
                                     <option value="" select>Tri par : </option>
                                     <option value="date_debut">Date Debut</option>
                                     <option value="date_fin">Date Fin</option>
@@ -203,7 +203,7 @@ if($connect->query($sql_activites) == FALSE){
                             </div>
                             <div class="p-3">
                                 <button id="open-form"
-                                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded border border-gray-800">
+                                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded border border-gray-500">
                                     New Activitie
                                 </button>
                             </div>
@@ -334,7 +334,7 @@ if($connect->query($sql_activites) == FALSE){
                                 <div class="bg-gray-200 px-2 py-3 border-b">
                                     Activities Table
                                 </div>
-                                <div class="p-3 overflow-x-auto">
+                                <div class=" overflow-x-auto">
                                     <table class="table-auto w-full min-w-max border-collapse border">
                                         <thead>
                                             <tr>
