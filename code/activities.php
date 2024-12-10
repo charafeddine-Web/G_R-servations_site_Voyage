@@ -396,10 +396,6 @@ if (!empty($error)) {
                                                 echo "<td class='border px-4 py-2'> {$row['places_disponibles']}</td>";
                                                 echo "<td class='border px-4 py-2'>
                                                     <a
-                                                        class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-green-500'>
-                                                        <i class='fas fa-eye'></i>
-                                                    </a>
-                                                    <a
                                                         class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-blue-500'>
                                                         <i class='fas fa-edit'></i>
                                                     </a>

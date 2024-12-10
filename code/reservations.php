@@ -365,13 +365,18 @@ else{
                                         </thead>
                                         <tbody>
                                             <?php
-                                            $sql = "SELECT * FROM reservations";
+                                                    $sql = "SELECT reservations.date_reservation, reservations.status, clients.nom, activites.titre 
+                                                    FROM reservations
+                                                    JOIN clients ON reservations.id_client = clients.id_client
+                                                    JOIN activites ON reservations.id_activite = activites.id_activite"; 
+                                                   
+                                            
                                             $result = mysqli_query($connect, $sql);
                                             if($result){
                                                 while ($row = mysqli_fetch_array($result)) {
                                                     echo "<tr>";
-                                                    echo"<td>$row[id_client]</td>";
-                                                    echo"<td>$row[id_activite]</td>";
+                                                    echo"<td>$row[nom]</td>";
+                                                    echo"<td>$row[titre]</td>";
                                                     echo"<td>$row[date_reservation]</td>";
                                                     if($row['status'] == "En_attente") {
                                                         echo"<td class='text-indigo-600'>$row[status]</td>";
@@ -381,10 +386,7 @@ else{
                                                         echo"<td class='text-red-600'>$row[status]</td>";
                                                     }
                                                     echo " <td class=border px-4 py-2>
-                                                        <a
-                                                            class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-green-500'>
-                                                            <i class='fas fa-eye'></i>
-                                                        </a>
+                                                       
                                                         <a
                                                             class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-blue-500'>
                                                             <i class='fas fa-edit'></i>

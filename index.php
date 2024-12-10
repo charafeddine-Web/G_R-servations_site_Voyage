@@ -13,40 +13,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
     $date_naissance = trim(htmlspecialchars($_POST['date_naissance']));
     
     if (empty($nom) || empty($prenom) || empty($email) || empty($telephone) || empty($adresse) || empty($date_naissance)) {
-        $errors[]="Tous les champs sont requis.";
+        $errors[] ="Tous les champs sont requis.";
     }
     
     if (strlen($telephone) > 15) {
         $errors[]=" phone < 15 char  ";
-        
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[]="Adresse email invalide";
     }
     $date_debut_obj = DateTime::createFromFormat('Y-m-d', datetime: $date_naissance);
     if (!$date_debut_obj) {
-        $errors[] = "Les dates sont invalides ou incohérentes.";
+        $errors[] = "La date de naissance est invalides.";
 
     }
 
 
-    $sql_insert = "INSERT INTO clients(nom,prenom,email,telephone,adresse,date_naissance)
-values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
-
-
-    if (!mysqli_query($connect, $sql_insert)) {
-        $errors[] ="errors sur connection avec mysql " ;
-    } else {
-        header("Location: index.php");
-        $_SESSION['successMessage']=" Client ajoutée avec succès !";
-        exit();
+    if(empty($errors)) {
+            $sql_insert = "INSERT INTO clients(nom,prenom,email,telephone,adresse,date_naissance)
+            values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
+                if (!mysqli_query($connect, $sql_insert)) {
+                    $errors[] ="errors sur connection avec mysql " ;
+                } else {
+                    header("Location: index.php");
+                    $_SESSION['successMessage']=" Client ajoutée avec succès !";
+                    exit();
+                }
     }
-
-
 
 }
-
-
 if (!empty($errors)) {
     foreach ($errors as $err) {
         echo "<div id='allerreur' class='bg-red-500 text-white font-bold py-2 px-4 mb-4 ml-80 text-center rounded flex  gap-2'>";
@@ -69,8 +64,7 @@ if (!empty($errors)) {
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
     <link rel="stylesheet" href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" />
-    <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet"> <!--Totally optional :) -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js" integrity="sha256-xKeoJ50pzbUGkpQxDYHD7o7hxe0LaOGeguUidbq6vis=" crossorigin="anonymous"></script> -->
+    <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
 
 </head>
 
@@ -205,8 +199,19 @@ if (!empty($errors)) {
                                     </div>
                                     <div class="flex-1 text-right md:text-center">
                                         <h2 class="font-bold uppercase text-gray-600">Total Reservation</h2>
-                                        <p class="font-bold text-3xl">50 <span class="text-green-500"><i
-                                                    class="fas fa-caret-up"></i></span></p>
+                                        <p class="font-bold text-3xl">
+                                       <span class="text-green-500">
+                                        <i class="fas fa-caret-up"></i>
+                                        <?php 
+                                        $sql="SELECT count(*) as total from reservations";
+                                        $result=mysqli_query($connect, $sql);
+                                        if($result){
+                                            $row = mysqli_fetch_assoc($result);
+                                            echo   $row['total'];
+
+                                        }
+                                        ?>
+                                    </span></p>
                                     </div>
                                 </div>
                             </div>
@@ -220,29 +225,25 @@ if (!empty($errors)) {
                                                 class="fas fa-users fa-2x fa-inverse"></i></div>
                                     </div>
                                     <div class="flex-1 text-right md:text-center">
-                                        <h2 class="font-bold uppercase text-gray-600">Total Users</h2>
-                                        <p class="font-bold text-3xl">249 <span class="text-pink-500"><i
-                                                    class="fas fa-exchange-alt"></i></span></p>
+                                        <h2 class="font-bold uppercase text-gray-600">Total Clients</h2>
+                                        <p class="font-bold text-3xl"> 
+                                            <span class="text-pink-500"><i class="fas fa-exchange-alt"></i>
+                                            <?php
+                                            $sql= 'SELECT count(*) as total from clients';
+                                            $result=mysqli_query($connect,$sql);
+                                            if($result){
+                                                $row = mysqli_fetch_assoc($result);
+                                                echo $row['total'];
+                                            }
+
+                                             ?>
+                                        </span>
+                                    </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="w-full md:w-1/2 xl:w-1/3 p-6">
-                            <div
-                                class="bg-gradient-to-b from-yellow-200 to-yellow-100 border-b-4 border-yellow-600 rounded-lg shadow-xl p-5">
-                                <div class="flex flex-row items-center">
-                                    <div class="flex-shrink pr-4">
-                                        <div class="rounded-full p-5 bg-yellow-600"><i
-                                                class="fas fa-user-plus fa-2x fa-inverse"></i></div>
-                                    </div>
-                                    <div class="flex-1 text-right md:text-center">
-                                        <h2 class="font-bold uppercase text-gray-600">New Users</h2>
-                                        <p class="font-bold text-3xl">2 <span class="text-yellow-600"><i
-                                                    class="fas fa-caret-up"></i></span></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                       
                         <div class="w-full md:w-1/2 xl:w-1/3 p-6">
                             <div
                                 class="bg-gradient-to-b from-blue-200 to-blue-100 border-b-4 border-blue-500 rounded-lg shadow-xl p-5">
@@ -253,26 +254,23 @@ if (!empty($errors)) {
                                     </div>
                                     <div class="flex-1 text-right md:text-center">
                                         <h2 class="font-bold uppercase text-gray-600">Total Activities</h2>
-                                        <p class="font-bold text-3xl">152 act</p>
+                                        <p class="font-bold text-3xl">
+                                            <?php  
+                                            $sql="SELECT count(*) as total from activites";
+
+                                            $resulta=mysqli_query($connect, $sql);
+                                            if($resulta){
+                                                $row = mysqli_fetch_assoc($resulta);
+                                                echo $row['total'];
+                                            }
+                                            
+                                            ?>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="w-full md:w-1/2 xl:w-1/3 p-6">
-                            <div
-                                class="bg-gradient-to-b from-indigo-200 to-indigo-100 border-b-4 border-indigo-500 rounded-lg shadow-xl p-5">
-                                <div class="flex flex-row items-center">
-                                    <div class="flex-shrink pr-4">
-                                        <div class="rounded-full p-5 bg-indigo-600"><i
-                                                class="fas fa-tasks fa-2x fa-inverse"></i></div>
-                                    </div>
-                                    <div class="flex-1 text-right md:text-center">
-                                        <h2 class="font-bold uppercase text-gray-600">Reservations</h2>
-                                        <p class="font-bold text-3xl">7 </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        
                     </div>
                     <div id='centeredFormModal'
                         class="modal-wrapper hidden fixed md:right-80 md:left-80 left-0 top-10 md:top-20 bg-gray-200 rounded-xl z-50">
