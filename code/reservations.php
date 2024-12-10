@@ -1,6 +1,7 @@
 <?php
 require("connection.php");
-
+session_start(); 
+$successMessage = "";
 if($_SERVER['REQUEST_METHOD']=='POST' && isset($_POST['submit'] )){
 
     $client=trim(htmlspecialchars($_POST['id_client']));
@@ -11,35 +12,31 @@ if($_SERVER['REQUEST_METHOD']=='POST' && isset($_POST['submit'] )){
 if(empty($activite) || empty($date_reservation) || empty($status)){
     echo "Please fill all the fields";
 }
+$date_obj = DateTime::createFromFormat('Y-m-d', $date_reservation);
+    if (!$date_obj) {
+        die("Les dates sont invalides ou incohérentes.");
+    }
+
+
 
     $sql ="INSERT INTO reservations(id_client,id_activite,date_reservation,status)
     values ('$client','$activite','$date_reservation','$status')";
 
-$result = mysqli_query($connect,$sql);
 
-if($result){
-    echo "donner add avec sucess",
-    header("loaction: reservations.php");
+if(mysqli_query($connect,$sql) == TRUE){
+    header("location: reservations.php");
+    $_SESSION['successMessage'] = "Réservation ajoutée avec succès !";
     exit();
 }
 else{
-    echo "donner add failed";
+   echo "Échec de l'ajout de la réservation.";
 }
 
-
-
-
-
 }
-
-
-
-
-
-
-
 
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -56,7 +53,7 @@ else{
     <link rel="stylesheet" href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" />
     <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet"> <!--Totally optional :) -->
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js" integrity="sha256-xKeoJ50pzbUGkpQxDYHD7o7hxe0LaOGeguUidbq6vis=" crossorigin="anonymous"></script> -->
-
+   
 </head>
 
 <body class="bg-gray-800 font-sans leading-normal tracking-normal mt-12">
@@ -87,12 +84,7 @@ else{
 
                 <div class="flex w-full pt-2 content-center justify-between md:w-1/3 md:justify-end">
                     <ul class="list-reset flex justify-between flex-1 md:flex-none items-center">
-                        <!-- <li class="flex-1 md:flex-none md:mr-3">
-                        <a class="inline-block py-2 px-4 text-white no-underline" href="#">Active</a>
-                    </li>
-                    <li class="flex-1 md:flex-none md:mr-3">
-                        <a class="inline-block text-gray-400 no-underline hover:text-gray-200 hover:text-underline py-2 px-4" href="#">link</a>
-                    </li> -->
+                     
                         <li class="flex-1 md:flex-none md:mr-3">
                             <div class="relative inline-block">
                                 <button onclick="toggleDD('myDropdown')" class="drop-button text-white py-2 px-2"> <span
@@ -125,6 +117,15 @@ else{
 
         </nav>
     </header>
+    <?php
+           if (isset($_SESSION['successMessage'])) {
+               echo "<div class='sucess bg-green-500 text-black font-bold  text-xl px-2 py-3 border-b fixed top-[50%] right-0 rounded '>
+                 " . htmlspecialchars($_SESSION['successMessage']) . "
+                 </div>";
+                unset($_SESSION['successMessage']); 
+              }
+    ?>
+                                  
 
     <main class="">
         <div class="flex flex-col md:flex-row ">
@@ -228,7 +229,7 @@ else{
 
                                                         if ($result) { 
                                                             while ($row = mysqli_fetch_array($result)) {
-                                                                echo "<option value='" . htmlspecialchars($row['id_client']) . "'>" . htmlspecialchars($row['prenom']) . "</option>";
+                                                                echo "<option value='" . htmlspecialchars($row['id_client']) . "'>" . htmlspecialchars($row['nom']) ." ". htmlspecialchars($row['prenom']) ."</option>";
                                                             }
                                                         } else {
                                                             echo "Erreur lors de l'exécution de la requête : " . mysqli_error($connect);
@@ -294,9 +295,9 @@ else{
                                                             En Attente
                                                         </label>
                                                         <input
-                                                            class="appearance-none w-5 h-5 border border-gray-500 rounded  checked:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-400"
+                                                            class=" w-5 h-5 border border-gray-500 rounded  "
                                                             id="status_en_attente" name="status" value="En_attente"
-                                                            type="checkbox">
+                                                            type="radio">
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         <label
@@ -305,9 +306,9 @@ else{
                                                             Confirmée
                                                         </label>
                                                         <input
-                                                            class="appearance-none w-5 h-5 border border-gray-500 rounded  checked:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-400"
+                                                            class=" w-5 h-5 border border-gray-500 rounded  "
                                                             id="status_confirmee" name="status" value="Confirmée"
-                                                            type="checkbox">
+                                                            type="radio">
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         <label
@@ -316,9 +317,9 @@ else{
                                                             Annulée
                                                         </label>
                                                         <input
-                                                            class="appearance-none w-5 h-5 border border-gray-500 rounded  checked:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-400"
+                                                            class=" w-5 h-5 border border-gray-500 rounded  "
                                                             id="status_annulee" name="status" value="Annulée"
-                                                            type="checkbox">
+                                                            type="radio">
                                                     </div>
                                                 </div>
                                             </div>
@@ -346,8 +347,8 @@ else{
                     <div class="flex flex-row flex-wrap flex-grow mt-2 w-full ">
                         <div class="flex flex-col mx-2  overflow-x-auto w-full ">
                             <div class="mb-2 border border-gray-300 rounded shadow-sm w-full">
-                                <div class="bg-gray-200 px-2 py-3 border-b">
-                                    Users Table
+                                <div class="bg-gray-200 px-2 py-3 border-b flex justify-between items-center">
+                                    <strong>Reservations Table</strong>
                                 </div>
                                 <div class="p-3 overflow-x-auto">
                                     <table class="table-auto w-full min-w-max border-collapse border">
@@ -372,7 +373,13 @@ else{
                                                     echo"<td>$row[id_client]</td>";
                                                     echo"<td>$row[id_activite]</td>";
                                                     echo"<td>$row[date_reservation]</td>";
-                                                    echo"<td>$row[status]</td>";
+                                                    if($row['status'] == "En_attente") {
+                                                        echo"<td class='text-indigo-600'>$row[status]</td>";
+                                                    }else if( $row["status"] == "Confirmée") {
+                                                        echo"<td class='text-green-600'>$row[status]</td>";
+                                                    }else{
+                                                        echo"<td class='text-red-600'>$row[status]</td>";
+                                                    }
                                                     echo " <td class=border px-4 py-2>
                                                         <a
                                                             class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-green-500'>
@@ -408,6 +415,14 @@ else{
 
 
     <script>
+
+        let sucess=document.querySelector('.sucess');
+        setInterval(()=>{
+            sucess.style.display="none";
+        },3000)
+
+
+
         /*    show and close model add activitie  */
         let form = document.getElementById('centeredFormModal')
 

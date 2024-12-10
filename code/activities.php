@@ -1,6 +1,8 @@
 <?php
 require("connection.php");
-
+session_start();
+$successMessage="";
+$error=[];
 if($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['submit'])){
 
     $titre = trim(htmlspecialchars($_POST['titre']));
@@ -12,40 +14,57 @@ if($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['submit'])){
     $description =  trim(htmlspecialchars( $_POST['description']));
 
     if (empty($titre) || empty($destination) || empty($prix) || empty($date_debut) || empty($date_fin) || empty($places_disponibles) || empty($description)) {
-        die("Tous les champs sont requis.");
+        $error[] = "Tous les champs sont requis.";
     }
     if (!is_numeric($prix) || $prix <= 0) {
-        die("Le prix doit être un nombre positif.");
+        $error[] = "Le prix doit être un nombre positif.";
     }
 
     if (!is_numeric($places_disponibles) || $places_disponibles <= 0) {
-        die("Les places disponibles doivent être un entier positif.");
+        $error[] = "Les places disponibles doivent être un entier positif.";
     }
     $date_debut_obj = DateTime::createFromFormat('Y-m-d', $date_debut);
     $date_fin_obj = DateTime::createFromFormat('Y-m-d', $date_fin);
     if (!$date_debut_obj || !$date_fin_obj || $date_debut_obj > $date_fin_obj) {
-        die("Les dates sont invalides ou incohérentes.");
+        $error[] = "Les dates sont invalides ou incohérentes.";
+
+    }
+ 
+    $sql_exist="SELECT * from activites where titre='$titre'";
+    $result_exist = mysqli_query($connect, $sql_exist);
+    if (mysqli_num_rows($result_exist) > 0) {
+        $error[] = "Une activité avec ce titre existe déjà.";
     }
 
-$sql_activites="INSERT INTO activites (titre,destination,prix,date_debut,date_fin,places_disponibles,description)
-values ('$titre','$destination','$prix','$date_debut','$date_fin','$places_disponibles','$description')";
 
-if($connect->query($sql_activites) == FALSE){
-    echo "Erreur : " . mysqli_error($connect);
-}else{
-    echo "Données ajoutées avec succès";
-    header("Location: activities.php");
-    exit();
+if(empty($error)){
+    $sql_activites="INSERT INTO activites (titre,destination,prix,date_debut,date_fin,places_disponibles,description)
+    values ('$titre','$destination','$prix','$date_debut','$date_fin','$places_disponibles','$description')";
+
+    if($connect->query($sql_activites) == FALSE){
+        $error[] = "Erreur lors de l'ajout de l'activité: ";
+    }else{
+        header("Location: activities.php");
+        $_SESSION["successMessage"]= "Activitie ajoutée avec succès !";
+        exit();
+    }
+
+}
+
 }
 
 
+if (!empty($error)) {
+    foreach ($error as $err) {
+        echo "<div id='allerreur' class='bg-red-500 text-white font-bold py-2 px-4 mb-4 ml-80 text-center rounded flex  gap-2'>";
+        echo "<p>" . htmlspecialchars($err) . "</p>";
+        echo "</div>";
+    }
 }
-
-
-
 
 
 ?>
+
 
 
 
@@ -65,7 +84,6 @@ if($connect->query($sql_activites) == FALSE){
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
     <link rel="stylesheet" href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" />
     <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet"> <!--Totally optional :) -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js" integrity="sha256-xKeoJ50pzbUGkpQxDYHD7o7hxe0LaOGeguUidbq6vis=" crossorigin="anonymous"></script> -->
 
 </head>
 
@@ -97,12 +115,6 @@ if($connect->query($sql_activites) == FALSE){
 
                 <div class="flex w-full pt-2 content-center justify-between md:w-1/3 md:justify-end">
                     <ul class="list-reset flex justify-between flex-1 md:flex-none items-center">
-                        <!-- <li class="flex-1 md:flex-none md:mr-3">
-                        <a class="inline-block py-2 px-4 text-white no-underline" href="#">Active</a>
-                    </li>
-                    <li class="flex-1 md:flex-none md:mr-3">
-                        <a class="inline-block text-gray-400 no-underline hover:text-gray-200 hover:text-underline py-2 px-4" href="#">link</a>
-                    </li> -->
                         <li class="flex-1 md:flex-none md:mr-3">
                             <div class="relative inline-block">
                                 <button onclick="toggleDD('myDropdown')" class="drop-button text-white py-2 px-2"> <span
@@ -135,7 +147,15 @@ if($connect->query($sql_activites) == FALSE){
 
         </nav>
     </header>
-
+    <?php
+           if (isset($_SESSION['successMessage'])) {
+               echo "<div class='sucess bg-green-500 text-black font-bold  text-xl px-2 py-3 border-b fixed top-[50%] right-0 rounded '>
+                 " . htmlspecialchars($_SESSION['successMessage']) . "
+                 </div>";
+                unset($_SESSION['successMessage']); 
+              }
+    ?>
+           
     <main class="">
         <div class="flex flex-col md:flex-row">
             <nav aria-label="alternative nav">
@@ -208,7 +228,7 @@ if($connect->query($sql_activites) == FALSE){
                                 </button>
                             </div>
                         </div>
-                        <div id='centeredFormModal' class="modal-wrapper hidden fixed md:right-80 md:left-80 left-0 top-0  md:top-20 bg-gray-200 rounded-xl z-50 mb-8 ">
+                        <div id='centeredFormModal' class="modal-wrapper hidden fixed md:right-80 md:left-80 left-0 top-0  md:top-0 bg-gray-200 rounded-xl z-50 mb-8 ">
                             <div class="overlay close-modal"></div>
                             <div class="modal modal-centered">
                                 <div class="modal-content shadow-lg p-5">
@@ -222,6 +242,14 @@ if($connect->query($sql_activites) == FALSE){
                                         </div>
                                     </div>
                                     <form id='form_id' class="w-full " method="POST" action="activities.php">
+                                      <?php if (!empty($error)) : ?>
+                                            <div class="bg-red-200 p-3 mb-6">
+                                                <?php foreach ($error as $err): ?>
+                                                    <p class="text-red-500 text-xs italic"><?php echo htmlspecialchars($err); ?></p>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        
                                         <div class="flex flex-wrap -mx-3 mb-6">
                                             <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                                                 <label
@@ -254,7 +282,7 @@ if($connect->query($sql_activites) == FALSE){
                                                 </label>
                                                 <input
                                                     class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                    id="prix" name="prix" type="text" placeholder="99$">
+                                                    id="prix" name="prix" type="text" placeholder="99">
                                                 <p class="text-grey-dark text-xs italic"></p>
                                             </div>
                                         </div>
@@ -267,7 +295,7 @@ if($connect->query($sql_activites) == FALSE){
                                                 </label>
                                                 <input
                                                     class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                    id="date_debut" name="date_debut" type="text" placeholder="2024-12-20">
+                                                    id="date_debut" name="date_debut" type="date" placeholder="2024-12-20">
                                             </div>
                                             <div class="w-full px-3 mb-6 md:mb-0">
                                                 <label
@@ -277,7 +305,7 @@ if($connect->query($sql_activites) == FALSE){
                                                 </label>
                                                 <input
                                                     class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                    id="date_fin" name="date_fin" type="text" placeholder="2024-01-01">  
+                                                    id="date_fin" name="date_fin" type="date" placeholder="2024-01-01">  
                                             </div>
                                             
                                         </div>
@@ -384,33 +412,6 @@ if($connect->query($sql_activites) == FALSE){
                                         }
                                             
                                             ?>
-
-
-
-
-<!-- 
-                                            <tr>
-                                                <td class="border px-4 py-2">Micheal </td>
-                                                <td class="border px-4 py-2">Clarke</td>
-                                                <td class="border px-4 py-2">Clarke@gmail.com</td>
-                                                <td class="border px-4 py-2">+212 659848273</td>
-                                                <td class="border px-4 py-2">safi 3zib dr3i</td>
-                                                <td class="border px-4 py-2">2004-20-10</td>
-                                                </td>
-                                                <td class="border px-4 py-2">
-                                                    <a
-                                                        class="bg-teal-300 cursor-pointer rounded p-1 mx-1 text-green-500">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a
-                                                        class="bg-teal-300 cursor-pointer rounded p-1 mx-1 text-blue-500">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                    <a class="bg-teal-300 cursor-pointer rounded p-1 mx-1 text-red-500">
-                                                        <i class="fas fa-trash"></i>
-                                                    </a>
-                                                </td>
-                                            </tr> -->
                                         </tbody>
                                     </table>
                                 </div>
@@ -427,6 +428,26 @@ if($connect->query($sql_activites) == FALSE){
 
 
     <script>
+let allerreur=document.querySelectorAll('#allerreur');
+allerreur.forEach((e)=>{
+    setInterval(()=>{
+    e.style.display="none";
+},3000)
+})
+
+
+
+
+
+
+
+
+        let sucess=document.querySelector('.sucess');
+        setInterval(()=>{
+            sucess.style.display="none";
+        },3000)
+
+
 /*    show and close model add activitie  */
 let form=document.getElementById('centeredFormModal')
 

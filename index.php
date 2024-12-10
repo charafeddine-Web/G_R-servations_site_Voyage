@@ -1,6 +1,8 @@
 <?php
 require("./code/connection.php");
-
+session_start();
+$successMessage = "";
+$errors=[];
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
 
     $nom = trim(htmlspecialchars($_POST['nom']));
@@ -11,19 +13,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
     $date_naissance = trim(htmlspecialchars($_POST['date_naissance']));
     
     if (empty($nom) || empty($prenom) || empty($email) || empty($telephone) || empty($adresse) || empty($date_naissance)) {
-        die("Tous les champs sont requis.");
+        $errors[]="Tous les champs sont requis.";
     }
-    // if (!$nom || !$prenom || !$email || !$telephone || !$adresse || !$date_naissance) {
-    //     die("Veuillez remplir tous les champs");
-    // }
+    
     if (strlen($telephone) > 15) {
-        die(" phone < 15 char  ");
-        ;
+        $errors[]=" phone < 15 char  ";
+        
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        die("Adresse email invalide");
+        $errors[]="Adresse email invalide";
     }
+    $date_debut_obj = DateTime::createFromFormat('Y-m-d', datetime: $date_naissance);
+    if (!$date_debut_obj) {
+        $errors[] = "Les dates sont invalides ou incohérentes.";
 
+    }
 
 
     $sql_insert = "INSERT INTO clients(nom,prenom,email,telephone,adresse,date_naissance)
@@ -31,10 +35,10 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
 
 
     if (!mysqli_query($connect, $sql_insert)) {
-        echo "Erreur : " . mysqli_error($connect);
+        $errors[] ="errors sur connection avec mysql " ;
     } else {
-        echo "Données ajoutées avec succès";
-        header("Location: ./index.php");
+        header("Location: index.php");
+        $_SESSION['successMessage']=" Client ajoutée avec succès !";
         exit();
     }
 
@@ -43,7 +47,13 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
 }
 
 
-
+if (!empty($errors)) {
+    foreach ($errors as $err) {
+        echo "<div id='allerreur' class='bg-red-500 text-white font-bold py-2 px-4 mb-4 ml-80 text-center rounded flex  gap-2'>";
+        echo "<p>" . htmlspecialchars($err) . "</p>";
+        echo "</div>";
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -92,12 +102,6 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
 
                 <div class="flex w-full pt-2 content-center justify-between md:w-1/3 md:justify-end">
                     <ul class="list-reset flex justify-between flex-1 md:flex-none items-center">
-                        <!--   <li class="flex-1 md:flex-none md:mr-3">
-                        <a class="inline-block py-2 px-4 text-white no-underline" href="#">Active</a>
-                    </li>
-                    <li class="flex-1 md:flex-none md:mr-3">
-                        <a class="inline-block text-gray-400 no-underline hover:text-gray-200 hover:text-underline py-2 px-4" href="#">link</a>
-                    </li> -->
                         <li class="flex-1 md:flex-none md:mr-3">
                             <div class="relative inline-block">
                                 <button onclick="toggleDD('myDropdown')" class="drop-button text-white py-2 px-2"> <span
@@ -130,6 +134,14 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
 
         </nav>
     </header>
+    <?php
+           if (isset($_SESSION['successMessage'])) {
+               echo "<div class='sucess bg-green-500 text-black font-bold  text-xl px-2 py-3 border-b fixed top-[50%] right-0 rounded '>
+                 " . htmlspecialchars($_SESSION['successMessage']) . "
+                 </div>";
+                unset($_SESSION['successMessage']); 
+              }
+    ?>
     <main>
         <div class="flex flex-col md:flex-row">
             <nav aria-label="alternative nav">
@@ -184,7 +196,6 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
 
                     <div class="flex justify-center flex-wrap">
                         <div class="w-full md:w-1/2 xl:w-1/3 p-6">
-                            <!--reservation Card-->
                             <div
                                 class="bg-gradient-to-b from-green-200 to-green-100 border-b-4 border-green-600 rounded-lg shadow-xl p-5">
                                 <div class="flex flex-row items-center">
@@ -201,7 +212,6 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
                             </div>
                         </div>
                         <div class="w-full md:w-1/2 xl:w-1/3 p-6">
-                            <!--users Card-->
                             <div
                                 class="bg-gradient-to-b from-pink-200 to-pink-100 border-b-4 border-pink-500 rounded-lg shadow-xl p-5">
                                 <div class="flex flex-row items-center">
@@ -218,7 +228,6 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
                             </div>
                         </div>
                         <div class="w-full md:w-1/2 xl:w-1/3 p-6">
-                            <!--new user  Card-->
                             <div
                                 class="bg-gradient-to-b from-yellow-200 to-yellow-100 border-b-4 border-yellow-600 rounded-lg shadow-xl p-5">
                                 <div class="flex flex-row items-center">
@@ -235,7 +244,6 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
                             </div>
                         </div>
                         <div class="w-full md:w-1/2 xl:w-1/3 p-6">
-                            <!--activities Card-->
                             <div
                                 class="bg-gradient-to-b from-blue-200 to-blue-100 border-b-4 border-blue-500 rounded-lg shadow-xl p-5">
                                 <div class="flex flex-row items-center">
@@ -251,7 +259,6 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
                             </div>
                         </div>
                         <div class="w-full md:w-1/2 xl:w-1/3 p-6">
-                            <!--Reservations Card-->
                             <div
                                 class="bg-gradient-to-b from-indigo-200 to-indigo-100 border-b-4 border-indigo-500 rounded-lg shadow-xl p-5">
                                 <div class="flex flex-row items-center">
@@ -282,6 +289,13 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
                                     </div>
                                 </div>
                                 <form id='form_id' class="w-full" method="POST" action="index.php">
+                                <?php if (!empty($errors)) : ?>
+                                            <div class="bg-red-200 p-3 mb-6">
+                                                <?php foreach ($errors as $err): ?>
+                                                    <p class="text-red-500 text-xs italic"><?php echo htmlspecialchars($err); ?></p>
+                                                <?php endforeach; ?>
+                                            </div>
+                                <?php endif; ?>
                                     <div class="flex flex-wrap -mx-3 mb-6">
                                         <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                                             <label
@@ -327,7 +341,7 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
                                             </label>
                                             <input
                                                 class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                id="telephone" name="telephone" type="text" placeholder="2024-12-20">
+                                                id="telephone" name="telephone" type="text" >
                                         </div>
                                         <div class="w-full px-3 mb-6 md:mb-0">
                                             <label
@@ -350,7 +364,7 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
                                             </label>
                                             <input
                                                 class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                id="date_naissance" name="date_naissance" type="text" placeholder="">
+                                                id="date_naissance" name="date_naissance" type="date" placeholder="">
                                         </div>
                                     </div>
 
@@ -376,6 +390,7 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
                             <div class="mb-2 border border-gray-300 rounded shadow-sm w-full">
                                 <div class="bg-gray-200 px-2 py-3 border-b flex items-center justify-between">
                                     <strong>Users Table</strong>
+                                  
                                     <div class="mb-2 mx-2 ">
                                         <div class="p-3">
                                             <button id="open-form"
@@ -451,6 +466,13 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
 
 
     <script>
+        let allerreur=document.querySelectorAll('#allerreur');
+allerreur.forEach((e)=>{
+    setInterval(()=>{
+    e.style.display="none";
+},3000)
+})
+
         function toggleDD(myDropMenu) {
             document.getElementById(myDropMenu).classList.toggle("invisible");
         }
@@ -467,32 +489,10 @@ values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
             })
         });
 
-        // function filterDD(myDropMenu, myDropMenuSearch) {
-        //     var input, filter, ul, li, a, i;
-        //     input = document.getElementById(myDropMenuSearch);
-        //     filter = input.value.toUpperCase();
-        //     div = document.getElementById(myDropMenu);
-        //     a = div.getElementsByTagName("a");
-        //     for (i = 0; i < a.length; i++) {
-        //         if (a[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
-        //             a[i].style.display = "";
-        //         } else {
-        //             a[i].style.display = "none";
-        //         }
-        //     }
-        // }
-
-        // window.onclick = function(event) {
-        //     if (!event.target.matches('.drop-button') && !event.target.matches('.drop-search')) {
-        //         var dropdowns = document.getElementsByClassName("dropdownlist");
-        //         for (var i = 0; i < dropdowns.length; i++) {
-        //             var openDropdown = dropdowns[i];
-        //             if (!openDropdown.classList.contains('invisible')) {
-        //                 openDropdown.classList.add('invisible');
-        //             }
-        //         }
-        //     }
-        // }
+        let sucess=document.querySelector('.sucess');
+        setInterval(()=>{
+            sucess.style.display="none";
+        },3000)
     </script>
 
 
