@@ -2,7 +2,7 @@
 require("./code/connection.php");
 session_start();
 $successMessage = "";
-$errors=[];
+$errors = [];
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
 
     $nom = trim(htmlspecialchars($_POST['nom']));
@@ -11,16 +11,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
     $telephone = trim(htmlspecialchars($_POST['telephone']));
     $adresse = trim(htmlspecialchars($_POST['adresse']));
     $date_naissance = trim(htmlspecialchars($_POST['date_naissance']));
-    
+
     if (empty($nom) || empty($prenom) || empty($email) || empty($telephone) || empty($adresse) || empty($date_naissance)) {
-        $errors[] ="Tous les champs sont requis.";
+        $errors[] = "Tous les champs sont requis.";
     }
-    
+
     if (strlen($telephone) > 15) {
-        $errors[]=" phone < 15 char  ";
+        $errors[] = " phone < 15 char  ";
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[]="Adresse email invalide";
+        $errors[] = "Adresse email invalide";
     }
     $date_debut_obj = DateTime::createFromFormat('Y-m-d', datetime: $date_naissance);
     if (!$date_debut_obj) {
@@ -29,22 +29,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
     }
 
 
-    if(empty($errors)) {
-            $sql_insert = "INSERT INTO clients(nom,prenom,email,telephone,adresse,date_naissance)
+    if (empty($errors)) {
+        $sql_insert = "INSERT INTO clients(nom,prenom,email,telephone,adresse,date_naissance)
             values ('$nom','$prenom','$email','$telephone','$adresse','$date_naissance')";
-                if (!mysqli_query($connect, $sql_insert)) {
-                    $errors[] ="errors sur connection avec mysql " ;
-                } else {
-                    header("Location: index.php");
-                    $_SESSION['successMessage']=" Client ajoutée avec succès !";
-                    exit();
-                }
+        if (!mysqli_query($connect, $sql_insert)) {
+            $errors[] = "errors sur connection avec mysql ";
+        } else {
+            header("Location: index.php");
+            $_SESSION['successMessage'] = " Client ajoutée avec succès !";
+            exit();
+        }
     }
 
 }
 if (!empty($errors)) {
     foreach ($errors as $err) {
-        echo "<div id='allerreur' class='bg-red-500 text-white font-bold py-2 px-4 mb-4 ml-80 text-center rounded flex  gap-2'>";
+        echo "<div id='allerreur' class='bg-red-500 text-white font-bold py-2 px-4 mb-4 mx-10 md:mx-20 md:ml-80 text-center rounded flex  gap-2'>";
         echo "<p>" . htmlspecialchars($err) . "</p>";
         echo "</div>";
     }
@@ -129,12 +129,12 @@ if (!empty($errors)) {
         </nav>
     </header>
     <?php
-           if (isset($_SESSION['successMessage'])) {
-               echo "<div class='sucess bg-green-500 text-black font-bold  text-xl px-2 py-3 border-b fixed top-[50%] right-0 rounded '>
+    if (isset($_SESSION['successMessage'])) {
+        echo "<div class='sucess bg-green-500 text-black font-bold  text-xl px-2 py-3 border-b fixed top-[50%] right-0 rounded '>
                  " . htmlspecialchars($_SESSION['successMessage']) . "
                  </div>";
-                unset($_SESSION['successMessage']); 
-              }
+        unset($_SESSION['successMessage']);
+    }
     ?>
     <main>
         <div class="flex flex-col md:flex-row">
@@ -200,18 +200,19 @@ if (!empty($errors)) {
                                     <div class="flex-1 text-right md:text-center">
                                         <h2 class="font-bold uppercase text-gray-600">Total Reservation</h2>
                                         <p class="font-bold text-3xl">
-                                       <span class="text-green-500">
-                                        <i class="fas fa-caret-up"></i>
-                                        <?php 
-                                        $sql="SELECT count(*) as total from reservations";
-                                        $result=mysqli_query($connect, $sql);
-                                        if($result){
-                                            $row = mysqli_fetch_assoc($result);
-                                            echo   $row['total'];
+                                            <span class="text-green-500">
+                                                <i class="fas fa-caret-up"></i>
+                                                <?php
+                                                $sql = "SELECT count(*) as total from reservations";
+                                                $result = mysqli_query($connect, $sql);
+                                                if ($result) {
+                                                    $row = mysqli_fetch_assoc($result);
+                                                    echo $row['total'];
 
-                                        }
-                                        ?>
-                                    </span></p>
+                                                }
+                                                ?>
+                                            </span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -226,24 +227,24 @@ if (!empty($errors)) {
                                     </div>
                                     <div class="flex-1 text-right md:text-center">
                                         <h2 class="font-bold uppercase text-gray-600">Total Clients</h2>
-                                        <p class="font-bold text-3xl"> 
+                                        <p class="font-bold text-3xl">
                                             <span class="text-pink-500"><i class="fas fa-exchange-alt"></i>
-                                            <?php
-                                            $sql= 'SELECT count(*) as total from clients';
-                                            $result=mysqli_query($connect,$sql);
-                                            if($result){
-                                                $row = mysqli_fetch_assoc($result);
-                                                echo $row['total'];
-                                            }
+                                                <?php
+                                                $sql = 'SELECT count(*) as total from clients';
+                                                $result = mysqli_query($connect, $sql);
+                                                if ($result) {
+                                                    $row = mysqli_fetch_assoc($result);
+                                                    echo $row['total'];
+                                                }
 
-                                             ?>
-                                        </span>
-                                    </p>
+                                                ?>
+                                            </span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                       
+
                         <div class="w-full md:w-1/2 xl:w-1/3 p-6">
                             <div
                                 class="bg-gradient-to-b from-blue-200 to-blue-100 border-b-4 border-blue-500 rounded-lg shadow-xl p-5">
@@ -255,27 +256,27 @@ if (!empty($errors)) {
                                     <div class="flex-1 text-right md:text-center">
                                         <h2 class="font-bold uppercase text-gray-600">Total Activities</h2>
                                         <p class="font-bold text-3xl">
-                                            <?php  
-                                            $sql="SELECT count(*) as total from activites";
+                                            <?php
+                                            $sql = "SELECT count(*) as total from activites";
 
-                                            $resulta=mysqli_query($connect, $sql);
-                                            if($resulta){
+                                            $resulta = mysqli_query($connect, $sql);
+                                            if ($resulta) {
                                                 $row = mysqli_fetch_assoc($resulta);
                                                 echo $row['total'];
                                             }
-                                            
+
                                             ?>
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
+
                     </div>
                     <div id='centeredFormModal'
-                        class="modal-wrapper hidden fixed md:right-80 md:left-80 left-0 top-10 md:top-20 bg-gray-200 rounded-xl z-50">
+                        class="modal-wrapper hidden fixed md:right-80 md:left-80 left-0 top-2 md:top-20 bg-gray-200 rounded-xl z-50">
                         <div class="overlay close-modal"></div>
-                        <div class="modal modal-centered">
+                        <div class="modal modal-centered max-h-screen overflow-y-auto">
                             <div class="modal-content shadow-lg p-5">
                                 <div class="border-b p-2 pb-3 pt-0 mb-4">
                                     <div class="flex justify-between items-center">
@@ -287,13 +288,13 @@ if (!empty($errors)) {
                                     </div>
                                 </div>
                                 <form id='form_id' class="w-full" method="POST" action="index.php">
-                                <?php if (!empty($errors)) : ?>
-                                            <div class="bg-red-200 p-3 mb-6">
-                                                <?php foreach ($errors as $err): ?>
-                                                    <p class="text-red-500 text-xs italic"><?php echo htmlspecialchars($err); ?></p>
-                                                <?php endforeach; ?>
-                                            </div>
-                                <?php endif; ?>
+                                    <?php if (!empty($errors)): ?>
+                                        <div class="bg-red-200 p-3 mb-6">
+                                            <?php foreach ($errors as $err): ?>
+                                                <p class="text-red-500 text-xs italic"><?php echo htmlspecialchars($err); ?></p>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
                                     <div class="flex flex-wrap -mx-3 mb-6">
                                         <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                                             <label
@@ -339,7 +340,7 @@ if (!empty($errors)) {
                                             </label>
                                             <input
                                                 class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                id="telephone" name="telephone" type="text" >
+                                                id="telephone" name="telephone" type="text">
                                         </div>
                                         <div class="w-full px-3 mb-6 md:mb-0">
                                             <label
@@ -367,7 +368,7 @@ if (!empty($errors)) {
                                     </div>
 
 
-                                    <div class="mt-5">
+                                    <div class="mt-5 ">
                                         <button type="submit" name="submit"
                                             class='bg-green-500 hover:bg-green-800 text-white font-bold py-2 px-4 rounded'>
                                             Submit
@@ -383,12 +384,140 @@ if (!empty($errors)) {
                             </div>
                         </div>
                     </div>
+                    <!-- FORM EDIT -->
+
+                    <div id='EDIT-FormModal'
+                        class="modal-wrapper hidden fixed md:right-80 md:left-80 left-0 top-2 md:top-20 bg-gray-200 rounded-xl z-50">
+                        <div class="overlay close"></div>
+                        <div class="modal modal-centered max-h-screen overflow-y-auto">
+                            <div class="modal-content shadow-lg p-5">
+                                <div class="border-b p-2 pb-3 pt-0 mb-4">
+                                    <div class="flex justify-between items-center">
+                                        Edit Client
+                                        <span
+                                            class='close cursor-pointer px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200'>
+                                            <i class="fas fa-times text-gray-700"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <form id='form_id' class="w-full" method="POST" action="index.php">
+                                    <?php if (!empty($errors)): ?>
+                                        <div class="bg-red-200 p-3 mb-6">
+                                            <?php foreach ($errors as $err): ?>
+                                                <p class="text-red-500 text-xs italic"><?php echo htmlspecialchars($err); ?></p>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php
+                                    $id=$_GET['editid'];
+                                    $sql = " SELECT * FROM clients where id_client='$id' ";
+                                    $result = mysqli_query($connect, $sql);
+
+                                    if ($row = mysqli_fetch_assoc($result)) {
+                                        ?>
+                                        <div class="flex flex-wrap -mx-3 mb-6">
+                                            <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                                                <label
+                                                    class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1"
+                                                    for="nom">
+                                                    Nom
+                                                </label>
+                                                <input
+                                                    class="appearance-none block w-full text-gray-700 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white-500"
+                                                    id="nom" name="nom" type="text" value="<?php echo $row['nom']; ?>">
+                                            </div>
+                                            <div class="w-full md:w-1/2 px-3">
+                                                <label
+                                                    class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1"
+                                                    for="prenom">
+                                                    Prenom
+                                                </label>
+                                                <input
+                                                    class="appearance-none block w-full text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                                    id="prenom" name="prenom" type="text"
+                                                    value="<?php echo $row['prenom']; ?>">
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-wrap -mx-3 mb-6">
+                                            <div class="w-full px-3">
+                                                <label
+                                                    class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1"
+                                                    for="email">
+                                                    Email
+                                                </label>
+                                                <input
+                                                    class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-grey"
+                                                    id="email" type="email" name="email"
+                                                    value="<?php echo $row['email']; ?>">
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-center -mx-3 mb-2">
+                                            <div class="w-full px-3 mb-6 md:mb-0">
+                                                <label
+                                                    class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1"
+                                                    for="telephone">
+                                                    Phone
+                                                </label>
+                                                <input
+                                                    class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
+                                                    id="telephone" name="telephone" type="text"
+                                                    value="<?php echo $row['telephone']; ?>">
+                                            </div>
+                                            <div class="w-full px-3 mb-6 md:mb-0">
+                                                <label
+                                                    class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1"
+                                                    for="adresse">
+                                                    Adresse
+                                                </label>
+                                                <input
+                                                    class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
+                                                    id="adresse" name="adresse" type="text"
+                                                    value="<?php echo $row['adresse']; ?>">
+                                            </div>
+                                        </div>
+                                        <div class="w-full">
+                                            <div class="mb-6 md:mb-0">
+                                                <label
+                                                    class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1"
+                                                    for="date_naissance">
+                                                    Date Naissance
+                                                </label>
+                                                <input
+                                                    class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-grey"
+                                                    id="date_naissance" name="date_naissance" type="date"
+                                                    value="<?php echo $row['date_naissance']; ?>">
+                                            </div>
+                                        </div>
+                                    <?php
+                                    } else {
+                                        echo "<p class='text-red-500'>Aucun client trouvé.</p>";
+                                    }
+                                    ?>
+
+                                    <div class="mt-5">
+                                        <button type="submit" name="submit"
+                                            class='bg-green-500 hover:bg-green-800 text-white font-bold py-2 px-4 rounded'>
+                                            Submit
+                                        </button>
+                                        <button type="reset" name="reset"
+                                            class='close cursor-pointer bg-red-200 hover:bg-red-500 text-red-900 font-bold py-2 px-4 rounded'>
+                                            Close
+                                        </button>
+                                    </div>
+                                </form>
+
+
+                            </div>
+                        </div>
+                    </div>
+                    <!------------------------------------------- end edit -->
                     <div class="flex flex-row flex-wrap flex-grow mt-2 w-full ">
-                        <div class="flex flex-col mx-2  overflow-x-auto w-full ">
+                        <div class="flex flex-col   overflow-x-auto w-full ">
                             <div class="mb-2 border border-gray-300 rounded shadow-sm w-full">
                                 <div class="bg-gray-200 px-2 py-3 border-b flex items-center justify-between">
                                     <strong>Users Table</strong>
-                                  
+
                                     <div class="mb-2 mx-2 ">
                                         <div class="p-3">
                                             <button id="open-form"
@@ -431,10 +560,11 @@ if (!empty($errors)) {
                                                         <td class='border px-4 py-2'>{$row['adresse']}</td>
                                                         <td class='border px-4 py-2'>{$row['date_naissance']}</td>
                                                         <td class='border px-4 py-2'>
-                                                            <a class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-green-500'>
+                                                            <a  class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-green-500'>
                                                                 <i class='fas fa-eye'></i>
                                                             </a>
-                                                            <a class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-blue-500'>
+                                                             <a href='index.php?editid={$row['id_client']}' 
+                                                                class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-blue-500'>
                                                                 <i class='fas fa-edit'></i>
                                                             </a>
                                                             <a class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-red-500'>
@@ -464,21 +594,48 @@ if (!empty($errors)) {
 
 
     <script>
-        let allerreur=document.querySelectorAll('#allerreur');
-allerreur.forEach((e)=>{
-    setInterval(()=>{
-    e.style.display="none";
-},3000)
-})
+
+        let allerreur = document.querySelectorAll('#allerreur');
+        allerreur.forEach((e) => {
+            setInterval(() => {
+                e.style.display = "none";
+            }, 3000)
+        })
 
         function toggleDD(myDropMenu) {
             document.getElementById(myDropMenu).classList.toggle("invisible");
         }
+        //form add 
         let form = document.getElementById('centeredFormModal')
-
         document.getElementById('open-form').addEventListener('click', function () {
             form.classList.toggle('hidden');
         })
+        //form edit
+        let editForm = document.getElementById('EDIT-FormModal');
+        let buttonEdit = document.querySelectorAll('.edit');
+
+        buttonEdit.forEach((button) => {
+            button.addEventListener('click', () => {
+                if (editForm) {
+                    editForm.classList.toggle('hidden');
+                } else {
+                    console.error('Modal not found!');
+                }
+            });
+        });
+
+
+        let closeedit = document.querySelectorAll('.close')
+        closeedit.forEach(element => {
+            element.addEventListener('click', function () {
+                editForm.classList.toggle('hidden');
+            })
+        });
+
+
+
+
+
 
         let close = document.querySelectorAll('.close-modal')
         close.forEach(element => {
@@ -487,10 +644,11 @@ allerreur.forEach((e)=>{
             })
         });
 
-        let sucess=document.querySelector('.sucess');
-        setInterval(()=>{
-            sucess.style.display="none";
-        },3000)
+        let sucess = document.querySelector('.sucess');
+        setInterval(() => {
+            sucess.style.display = "none";
+        }, 3000)
+
     </script>
 
 

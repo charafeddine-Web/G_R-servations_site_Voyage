@@ -1,7 +1,7 @@
 create database agence_de_voyage;
 use agence_de_voyage;
 
-create table clients(
+create table IF NOT EXISTS clients(
 id_client INT primary key auto_increment Not null ,
 nom varchar(100),
 prenom varchar(100),
@@ -11,7 +11,7 @@ adresse text,
 date_naissance date
 );
 
-create table activites(
+create table IF NOT EXISTS activites(
 id_activite INT  primary key not null auto_increment,
 titre varchar(150),
 description text,
@@ -22,7 +22,7 @@ date_fin date ,
 places_disponibles INT not null 
 );
 
-create table reservations(
+create table IF NOT EXISTS reservations(
 id_reservation INT primary key not null auto_increment,
 id_client INT,
 id_activite INT,
@@ -56,6 +56,7 @@ VALUES
 
 
 /********************************* Mise à jour des tables******************************************/
+
 ALTER TABLE client MODIFY adresse VARCHAR(200) NOT NULL;
 ALTER TABLE client DROP date_naissance;
 ALTER TABLE activites CHANGE description descriptione TEXT;

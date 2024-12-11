@@ -56,7 +56,7 @@ if(empty($error)){
 
 if (!empty($error)) {
     foreach ($error as $err) {
-        echo "<div id='allerreur' class='bg-red-500 text-white font-bold py-2 px-4 mb-4 ml-80 text-center rounded flex  gap-2'>";
+        echo "<div id='allerreur' class='bg-red-500 text-white font-bold py-2 px-4 mb-4 mx-10 md:mx-20 md:ml-80 text-center rounded flex  gap-2'>";
         echo "<p>" . htmlspecialchars($err) . "</p>";
         echo "</div>";
     }
@@ -83,7 +83,7 @@ if (!empty($error)) {
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
     <link rel="stylesheet" href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" />
-    <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet"> <!--Totally optional :) -->
+    <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet"> 
 
 </head>
 
@@ -198,7 +198,7 @@ if (!empty($error)) {
                     </div>
                 </div>
             </nav>
-            <section class="">
+            <section class=" w-full ">
                 <div id="main" class="main-content flex-1 bg-gray-100 mt-12 md:mt-2 pb-24 w-full">
                     <div class="bg-gray-800 pt-3">
                         <div
@@ -209,7 +209,7 @@ if (!empty($error)) {
 
                     <div class='flex flex-1  flex-col md:flex-row lg:flex-row '>
                         <div
-                            class="mb-2 mx-4 flex items-center justify-end w-full ">
+                            class="mb-2 flex items-center justify-end w-full ">
                             
                             <div class="p-3">
                                 <select name="" id=""class=" text-black font-bold py-2 px-4 rounded border border-gray-500">                                >
@@ -228,11 +228,11 @@ if (!empty($error)) {
                                 </button>
                             </div>
                         </div>
-                        <div id='centeredFormModal' class="modal-wrapper hidden fixed md:right-80 md:left-80 left-0 top-0  md:top-0 bg-gray-200 rounded-xl z-50 mb-8 ">
+                        <div id='centeredFormModal' class="modal-wrapper  hidden fixed md:right-80 md:left-80 left-0 top-0  md:top-0 bg-gray-200 rounded-xl z-50 mb-8 ">
                             <div class="overlay close-modal"></div>
-                            <div class="modal modal-centered">
-                                <div class="modal-content shadow-lg p-5">
-                                    <div class="border-b p-2 pb-3 pt-0 ">
+                            <div class="modal modal-centered max-h-screen overflow-y-auto ">
+                                <div class="modal-content shadow-lg p-2">
+                                    <div class="border-b  pb-2 pt-0 ">
                                         <div class="flex justify-between items-center">
                                             Modal Activities
                                             <span
@@ -241,7 +241,7 @@ if (!empty($error)) {
                                             </span>
                                         </div>
                                     </div>
-                                    <form id='form_id' class="w-full " method="POST" action="activities.php">
+                                    <form id='form_id' class="w-full  " method="POST" action="activities.php">
                                       <?php if (!empty($error)) : ?>
                                             <div class="bg-red-200 p-3 mb-6">
                                                 <?php foreach ($error as $err): ?>
@@ -336,7 +336,7 @@ if (!empty($error)) {
                                         </div>
                                        
 
-                                        <div class="mt-1 flex justify-between ">
+                                        <div class="mt-1 flex justify-center items-center gap-4">
                                         <button
                                         type="reset"   
                                             class='close-modal cursor-pointer bg-red-200 hover:bg-red-500 text-red-900 font-bold py-2 px-4 rounded'>
@@ -357,7 +357,7 @@ if (!empty($error)) {
                         
                     </div>
                     <div class="flex flex-row flex-wrap flex-grow mt-2 w-full ">
-                        <div class="flex flex-col mx-2   w-full ">
+                        <div class="flex flex-col   w-full ">
                             <div class="mb-2 border border-gray-300 rounded shadow-sm w-full">
                                 <div class="bg-gray-200 px-2 py-3 border-b">
                                     Activities Table

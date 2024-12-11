@@ -2,6 +2,7 @@
 require("connection.php");
 session_start(); 
 $successMessage = "";
+$errors=[];
 if($_SERVER['REQUEST_METHOD']=='POST' && isset($_POST['submit'] )){
 
     $client=trim(htmlspecialchars($_POST['id_client']));
@@ -10,30 +11,41 @@ if($_SERVER['REQUEST_METHOD']=='POST' && isset($_POST['submit'] )){
     $status=trim(htmlspecialchars($_POST['status']));
 
 if(empty($activite) || empty($date_reservation) || empty($status)){
-    echo "Please fill all the fields";
+     $errors[] = "Please fill all the fields";
 }
+
+// $test_status = ['En_attente', 'Confirmée', 'Annulée'];
+// if (!in_array($status, $test_status)) {
+//     $errors[] = 'Statut invalide.';
+// }
+
+
 $date_obj = DateTime::createFromFormat('Y-m-d', $date_reservation);
     if (!$date_obj) {
-        die("Les dates sont invalides ou incohérentes.");
+        $errors[] ="Les dates sont invalides ou incohérentes.";
     }
 
-
-
+if(empty($errors)){
     $sql ="INSERT INTO reservations(id_client,id_activite,date_reservation,status)
     values ('$client','$activite','$date_reservation','$status')";
-
-
-if(mysqli_query($connect,$sql) == TRUE){
-    header("location: reservations.php");
-    $_SESSION['successMessage'] = "Réservation ajoutée avec succès !";
-    exit();
-}
-else{
-   echo "Échec de l'ajout de la réservation.";
-}
-
+    if(mysqli_query($connect,$sql) == TRUE){
+        header("location: reservations.php");
+        $_SESSION['successMessage'] = "Réservation ajoutée avec succès !";
+        exit();
+    }
+    else{
+        $errors[] = "Échec de l'ajout de la réservation.";
+    }
 }
 
+}
+if (!empty($errors)) {
+    foreach ($errors as $err) {
+        echo "<div id='allerreur' class='bg-red-500 text-white font-bold py-2  px-4 mb-4 mx-10 md:mx-20 md:ml-80 text-center rounded flex  gap-2'>";
+        echo "<p>" . htmlspecialchars($err) . "</p>";
+        echo "</div>";
+    }
+}
 ?>
 
 
@@ -51,8 +63,7 @@ else{
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
     <link rel="stylesheet" href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" />
-    <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet"> <!--Totally optional :) -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js" integrity="sha256-xKeoJ50pzbUGkpQxDYHD7o7hxe0LaOGeguUidbq6vis=" crossorigin="anonymous"></script> -->
+    <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
    
 </head>
 
@@ -87,7 +98,7 @@ else{
                      
                         <li class="flex-1 md:flex-none md:mr-3">
                             <div class="relative inline-block">
-                                <button onclick="toggleDD('myDropdown')" class="drop-button text-white py-2 px-2"> <span
+                                <button  class="drop-button text-white py-2 px-2"> <span
                                         class="pr-2"><i class="em em-robot_face"></i></span> Hi, User <svg
                                         class="h-3 fill-current inline" xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 20 20">
@@ -97,7 +108,7 @@ else{
                                 <div id="myDropdown"
                                     class="dropdownlist absolute bg-gray-800 text-white right-0 mt-3 p-3 overflow-auto z-30 invisible">
                                     <input type="text" class="drop-search p-2 text-gray-600" placeholder="Search.."
-                                        id="myInput" onkeyup="filterDD('myDropdown','myInput')">
+                                        id="myInput" >
                                     <a href="#"
                                         class="p-2 hover:bg-gray-800 text-white text-sm no-underline hover:no-underline block"><i
                                             class="fa fa-user fa-fw"></i> Profile</a>
@@ -178,8 +189,8 @@ else{
                         </div>
                     </div>
 
-                    <div class='flex flex-1  flex-col md:flex-row lg:flex-row mx-2 w-full'>
-                        <div class="mb-2 mx-4 flex items-center justify-end w-full ">
+                    <div class='flex flex-1  flex-col md:flex-row lg:flex-row mx-2 '>
+                        <div class="mb-2  flex items-center justify-end w-full ">
 
                             <div class="p-3">
                                 <select name="" id=""
@@ -212,6 +223,13 @@ else{
                                         </div>
                                     </div>
                                     <form id='form_id' class="w-full " method="POST" action="reservations.php">
+                                    <?php if (!empty($errors)) : ?>
+                                            <div class="bg-red-200 p-3 mb-6">
+                                                <?php foreach ($errors as $err): ?>
+                                                    <p class="text-red-500 text-xs italic"><?php echo htmlspecialchars($err); ?></p>
+                                                <?php endforeach; ?>
+                                            </div>
+                                <?php endif; ?>
                                         <div class="flex flex-wrap -mx-3 mb-6">
                                             <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                                                 <label
@@ -280,14 +298,14 @@ else{
                                                 <p class="text-grey-dark text-xs italic"></p>
                                             </div>
                                         </div>
-                                        <div class="flex justify-center -mx-3 mb-2">
+                                        <div class="flex justify-center md:flex-row mb-2">
                                             <div
                                                 class="flex items-center justify-center gap-20 w-full px-3 mb-6 md:mb-0">
                                                 <label class="block uppercase tracking-wide text-l font-light mb-1"
                                                     >
                                                     Statut :
                                                 </label>
-                                                <div class="flex justify-between items-center gap-8">
+                                                <div class="flex justify-between items-center flex-wrap gap-8">
                                                     <div class="flex items-center gap-2">
                                                         <label
                                                             class="block uppercase tracking-wide text-xs font-light mb-1"
@@ -345,7 +363,7 @@ else{
 
                     </div>
                     <div class="flex flex-row flex-wrap flex-grow mt-2 w-full ">
-                        <div class="flex flex-col mx-2  overflow-x-auto w-full ">
+                        <div class="flex flex-col   overflow-x-auto w-full ">
                             <div class="mb-2 border border-gray-300 rounded shadow-sm w-full">
                                 <div class="bg-gray-200 px-2 py-3 border-b flex justify-between items-center">
                                     <strong>Reservations Table</strong>
@@ -354,11 +372,10 @@ else{
                                     <table class="table-auto w-full min-w-max border-collapse border">
                                         <thead>
                                             <tr>
-                                                <th class="border px-4 py-2 text-left text-sm md:text-base">ID Client</th>
-                                                <th class="border px-4 py-2 text-left text-sm md:text-base">ID Activitie</th>
+                                                <th class="border px-4 py-2 text-left text-sm md:text-base">Client</th>
+                                                <th class="border px-4 py-2 text-left text-sm md:text-base">Activitie</th>
                                                 <th class="border px-4 py-2 text-left text-sm md:text-base">Date Reservation</th>
-                                                <th class="border px-4 py-2 text-left text-sm md:text-base">Status
-                                                </th>
+                                                <th class="border px-8  py-2 text-left text-sm md:text-base">Status</th>
                                                 <th class="border px-4 py-2 text-left text-sm md:text-base">Actions</th>
 
                                             </tr>
@@ -421,13 +438,20 @@ else{
         let sucess=document.querySelector('.sucess');
         setInterval(()=>{
             sucess.style.display="none";
+        },3000);
+
+        let allerreur=document.querySelectorAll('#allerreur');
+        allerreur.forEach((e)=>{
+            setInterval(()=>{
+            e.style.display="none";
         },3000)
+        })
+
 
 
 
         /*    show and close model add activitie  */
-        let form = document.getElementById('centeredFormModal')
-
+        let form = document.getElementById('centeredFormModal');
         document.getElementById('open-form').addEventListener('click', function () {
             form.classList.toggle('hidden');
         })
