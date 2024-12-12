@@ -2,7 +2,9 @@
 require("./code/connection.php");
 session_start();
 $successMessage = "";
+$deletemessgae = "";
 $errors = [];
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
 
     $nom = trim(htmlspecialchars($_POST['nom']));
@@ -17,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
     }
 
     if (strlen($telephone) > 15) {
-        $errors[] = " phone < 15 char  ";
+        $errors[] = " phone < 15 char ";
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "Adresse email invalide";
@@ -25,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
     $date_debut_obj = DateTime::createFromFormat('Y-m-d', datetime: $date_naissance);
     if (!$date_debut_obj) {
         $errors[] = "La date de naissance est invalides.";
-
     }
 
 
@@ -35,13 +36,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
         if (!mysqli_query($connect, $sql_insert)) {
             $errors[] = "errors sur connection avec mysql ";
         } else {
-            header("Location: index.php");
+            header( "Location: index.php");
             $_SESSION['successMessage'] = " Client ajoutée avec succès !";
             exit();
         }
     }
+   
+};
 
+if (isset($_GET['delete_id'])) {
+    $delete_id = $_GET['delete_id'];
+    $sql_delete = "DELETE FROM clients WHERE id_client = '$delete_id'";
+    $result=mysqli_query($connect, $sql_delete);
+    if($result){
+        header( "Location: index.php");
+        $_SESSION['deletemessgae']="Client deleted successfully.!";
+        exit();
+    }else{
+        $errors[] = "Client No deleted .! ";
+
+    }
+    
 }
+
 if (!empty($errors)) {
     foreach ($errors as $err) {
         echo "<div id='allerreur' class='bg-red-500 text-white font-bold py-2 px-4 mb-4 mx-10 md:mx-20 md:ml-80 text-center rounded flex  gap-2'>";
@@ -135,6 +152,12 @@ if (!empty($errors)) {
                  </div>";
         unset($_SESSION['successMessage']);
     }
+    if (isset($_SESSION['deletemessgae'])) {
+        echo "<div class='sucessdelete bg-green-500 text-black font-bold  text-xl px-2 py-3 border-b fixed top-[50%] right-0 rounded '>
+                 " . htmlspecialchars($_SESSION['deletemessgae']) . "
+                 </div>";
+        unset($_SESSION['deletemessgae']);
+    }
     ?>
     <main>
         <div class="flex flex-col md:flex-row">
@@ -178,8 +201,8 @@ if (!empty($errors)) {
                     </div>
                 </div>
             </nav>
-            <section>
-                <div id="main" class="main-content flex-1 bg-gray-100 mt-12 md:mt-2 pb-24 ">
+            <section class=" w-full">
+                <div id="main" class="main-content flex-1 bg-gray-100 mt-12 md:mt-2 pb-24">
 
                     <div class="bg-gray-800 pt-3">
                         <div
@@ -327,7 +350,7 @@ if (!empty($errors)) {
                                             </label>
                                             <input
                                                 class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-grey"
-                                                id="email" type="email" name="email" placeholder="example@gmail.com">
+                                                id="email" type="text" name="email" placeholder="example@gmail.com">
                                             <p class="text-grey-dark text-xs italic"></p>
                                         </div>
                                     </div>
@@ -400,7 +423,7 @@ if (!empty($errors)) {
                                         </span>
                                     </div>
                                 </div>
-                                <form id='form_id' class="w-full" method="POST" action="index.php">
+                                <form id='form_id' class="w-full" method="POST" action="./code/update.php">
                                     <?php if (!empty($errors)): ?>
                                         <div class="bg-red-200 p-3 mb-6">
                                             <?php foreach ($errors as $err): ?>
@@ -408,15 +431,18 @@ if (!empty($errors)) {
                                             <?php endforeach; ?>
                                         </div>
                                     <?php endif; ?>
-
                                     <?php
-                                    $id=$_GET['editid'];
-                                    $sql = " SELECT * FROM clients where id_client='$id' ";
-                                    $result = mysqli_query($connect, $sql);
+                                    if(isset($_GET['edit_id'])){
+                                        $id_cli=$_GET['edit_id'];
+                                        $sql="SELECT * from where id_client='$id_cli' ";
+                                        $result=$connect->query($sql);
+                                        $row=$result->fetch_assoc();
+                                    }
+                                    ?>
 
-                                    if ($row = mysqli_fetch_assoc($result)) {
-                                        ?>
+                                    
                                         <div class="flex flex-wrap -mx-3 mb-6">
+                                            <input type="hidden" name="id" value="<?php echo $row['id_client']; ?>">
                                             <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                                                 <label
                                                     class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1"
@@ -489,11 +515,7 @@ if (!empty($errors)) {
                                                     value="<?php echo $row['date_naissance']; ?>">
                                             </div>
                                         </div>
-                                    <?php
-                                    } else {
-                                        echo "<p class='text-red-500'>Aucun client trouvé.</p>";
-                                    }
-                                    ?>
+                                 
 
                                     <div class="mt-5">
                                         <button type="submit" name="submit"
@@ -563,11 +585,11 @@ if (!empty($errors)) {
                                                             <a  class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-green-500'>
                                                                 <i class='fas fa-eye'></i>
                                                             </a>
-                                                             <a href='index.php?editid={$row['id_client']}' 
-                                                                class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-blue-500'>
+                                                             <a href='index.php?edit_id={$row['id_client']}'
+                                                                class='edit bg-teal-300 cursor-pointer rounded p-1 mx-1 text-blue-500'>
                                                                 <i class='fas fa-edit'></i>
                                                             </a>
-                                                            <a class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-red-500'>
+                                                           <a href='index.php?delete_id={$row['id_client']}' class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-red-500'>
                                                                 <i class='fas fa-trash'></i>
                                                             </a>
                                                         </td>
@@ -577,8 +599,6 @@ if (!empty($errors)) {
                                                 echo "<tr><td colspan='7' class='text-center'>Aucun client trouvé.</td></tr>";
                                             }
                                             ?>
-
-
                                         </tbody>
                                     </table>
                                 </div>
@@ -615,7 +635,7 @@ if (!empty($errors)) {
         let buttonEdit = document.querySelectorAll('.edit');
 
         buttonEdit.forEach((button) => {
-            button.addEventListener('click', () => {
+            button.addEventListener('click', (event) => {
                 if (editForm) {
                     editForm.classList.toggle('hidden');
                 } else {
@@ -623,6 +643,7 @@ if (!empty($errors)) {
                 }
             });
         });
+
 
 
         let closeedit = document.querySelectorAll('.close')
@@ -647,6 +668,12 @@ if (!empty($errors)) {
         let sucess = document.querySelector('.sucess');
         setInterval(() => {
             sucess.style.display = "none";
+        }, 3000)
+
+
+        let sucessdelete = document.querySelector('.sucessdelete');
+        setInterval(() => {
+            sucessdelete.style.display = "none";
         }, 3000)
 
     </script>

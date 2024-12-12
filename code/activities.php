@@ -30,6 +30,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['submit'])){
 
     }
  
+ 
     $sql_exist="SELECT * from activites where titre='$titre'";
     $result_exist = mysqli_query($connect, $sql_exist);
     if (mysqli_num_rows($result_exist) > 0) {
