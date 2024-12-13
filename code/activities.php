@@ -2,6 +2,8 @@
 require("connection.php");
 session_start();
 $successMessage="";
+$deletemessgae = "";
+
 $error=[];
 if($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['submit'])){
 
@@ -45,8 +47,8 @@ if(empty($error)){
     if($connect->query($sql_activites) == FALSE){
         $error[] = "Erreur lors de l'ajout de l'activité: ";
     }else{
-        header("Location: activities.php");
         $_SESSION["successMessage"]= "Activitie ajoutée avec succès !";
+        header("Location: activities.php");
         exit();
     }
 
@@ -57,12 +59,27 @@ if(empty($error)){
 
 if (!empty($error)) {
     foreach ($error as $err) {
-        echo "<div id='allerreur' class='bg-red-500 text-white font-bold py-2 px-4 mb-4 mx-10 md:mx-20 md:ml-80 text-center rounded flex  gap-2'>";
+        echo "<div id='allerreur' class='bg-red-500 text-white font-bold py-2 px-4 mb-4 mt-8 mx-10 md:mx-20 md:ml-80 text-center rounded flex  gap-2'>";
         echo "<p>" . htmlspecialchars($err) . "</p>";
         echo "</div>";
     }
 }
 
+if(isset($_GET['delete_id'])){
+    $delete_id=$_GET['delete_id'];
+
+    $sql="DELETE from activites where id_activite=' $delete_id'";
+
+    $result=mysqli_query($connect,$sql);
+    if($result){
+        header( "Location: activities.php");
+        $_SESSION["deletemessgae"]= "Activitie  deleted successfully.!";
+        exit();
+    }else{
+        $error[]="Activitie NO  deleted";
+    }
+
+}
 
 ?>
 
@@ -90,7 +107,7 @@ if (!empty($error)) {
 
 <body class="bg-gray-800 font-sans leading-normal tracking-normal mt-12">
     <header>
-        <nav aria-label="menu nav" class="bg-gray-800 pt-2 md:pt-1 pb-1 px-1 mt-0 h-auto fixed w-full z-20 top-0">
+        <nav aria-label="menu nav" class="bg-gray-800 pt-2 md:pt-1 pb-1 px-1 mt-0 h-auto fixed w-full z-20 top-0 ">
 
             <div class="flex flex-wrap items-center">
             <div class="flex flex-shrink md:w-1/3 justify-center md:justify-start text-white">
@@ -99,11 +116,12 @@ if (!empty($error)) {
                     </a>
                 </div>
 
-                <div class="flex flex-1 md:w-1/3 justify-center md:justify-start text-white px-2">
+                <div class="flex flex-1 md:w-1/3 justify-center md:justify-start text-white px-2 pt-4">
                     <span class="relative w-full">
+                        <form action="">
                         <input aria-label="search" type="search" id="search" placeholder="Search"
                             class="w-full bg-gray-900 text-white transition border border-transparent focus:outline-none focus:border-gray-400 rounded py-3 px-2 pl-10 appearance-none leading-normal">
-                        <div class="absolute search-icon" style="top: 1rem; left: .8rem;">
+                            <div class="absolute search-icon" style="top: 1rem; left: .8rem;">
                             <svg class="fill-current pointer-events-none text-white w-4 h-4"
                                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                 <path
@@ -111,6 +129,7 @@ if (!empty($error)) {
                                 </path>
                             </svg>
                         </div>
+                        </form>
                     </span>
                 </div>
 
@@ -119,7 +138,7 @@ if (!empty($error)) {
                         <li class="flex-1 md:flex-none md:mr-3">
                             <div class="relative inline-block">
                                 <button onclick="toggleDD('myDropdown')" class="drop-button text-white py-2 px-2"> <span
-                                        class="pr-2"><i class="em em-robot_face"></i></span> Hi, User <svg
+                                        class="pr-2"><i class="em em-robot_face"></i></span> Hi, Admin <svg
                                         class="h-3 fill-current inline" xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 20 20">
                                         <path
@@ -127,8 +146,6 @@ if (!empty($error)) {
                                     </svg></button>
                                 <div id="myDropdown"
                                     class="dropdownlist absolute bg-gray-800 text-white right-0 mt-3 p-3 overflow-auto z-30 invisible">
-                                    <input type="text" class="drop-search p-2 text-gray-600" placeholder="Search.."
-                                        id="myInput" onkeyup="filterDD('myDropdown','myInput')">
                                     <a href="#"
                                         class="p-2 hover:bg-gray-800 text-white text-sm no-underline hover:no-underline block"><i
                                             class="fa fa-user fa-fw"></i> Profile</a>
@@ -150,11 +167,18 @@ if (!empty($error)) {
     </header>
     <?php
            if (isset($_SESSION['successMessage'])) {
-               echo "<div class='sucess bg-green-500 text-black font-bold  text-xl px-2 py-3 border-b fixed top-[50%] right-0 rounded '>
+               echo "<div class='sucess bg-green-500 text-black font-bold  text-xl px-2 py-3 border-b fixed  right-0 rounded ' style='margin-top:20px'>
                  " . htmlspecialchars($_SESSION['successMessage']) . "
                  </div>";
                 unset($_SESSION['successMessage']); 
               }
+
+            if (isset($_SESSION['deletemessgae'])) {
+                echo "<div class='sucessdelete bg-green-500 text-black font-bold  text-xl px-2 py-3 border-b fixed  right-0 rounded ' style='margin-top:20px'>
+                  " . htmlspecialchars($_SESSION['deletemessgae']) . "
+                  </div>";
+                 unset($_SESSION['deletemessgae']); 
+               }
     ?>
            
     <main class="">
@@ -188,11 +212,11 @@ if (!empty($error)) {
                                         class="pb-1 md:pb-0 text-xs md:text-base text-white md:text-white block md:inline-block">Activities</span>
                                 </a>
                             </li>
-                            <li class="mr-3 flex-1">
+                            <li class="mr-3 flex-1 ">
                                 <a href="#"
                                     class="block py-1 md:py-3 pl-0 md:pl-1 align-middle text-white no-underline hover:text-white border-b-2 border-gray-800 hover:border-red-500">
                                     <i class="fa fa-wallet pr-0 md:pr-3"></i><span
-                                        class="pb-1 md:pb-0 text-xs md:text-base text-gray-400 md:text-gray-200 block md:inline-block">Autre</span>
+                                        class="pb-1 md:pb-0 text-xs md:text-base text-gray-400 md:text-gray-200 block md:inline-block ">Log Out</span>
                                 </a>
                             </li>
                         </ul>
@@ -396,11 +420,8 @@ if (!empty($error)) {
                                                 echo "<td class='border px-4 py-2'> {$row['description']}</td>";
                                                 echo "<td class='border px-4 py-2'> {$row['places_disponibles']}</td>";
                                                 echo "<td class='border px-4 py-2'>
-                                                    <a
-                                                        class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-blue-500'>
-                                                        <i class='fas fa-edit'></i>
-                                                    </a>
-                                                    <a class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-red-500'>
+                                                
+                                                    <a href='activities.php?delete_id={$row['id_activite']}' class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-red-500'>
                                                         <i class='fas fa-trash'></i>
                                                     </a>
                                                 </td>";
@@ -425,6 +446,7 @@ if (!empty($error)) {
 
 
     <script>
+
 let allerreur=document.querySelectorAll('#allerreur');
 allerreur.forEach((e)=>{
     setInterval(()=>{
@@ -433,18 +455,18 @@ allerreur.forEach((e)=>{
 })
 
 
-
-
-
-
-
-
         let sucess=document.querySelector('.sucess');
         setInterval(()=>{
             sucess.style.display="none";
         },3000)
 
+        
+        let sucessdelete=document.querySelector('.sucessdelete');
+        setInterval(()=>{
+            sucessdelete.style.display="none";
+        },3000)
 
+        
 /*    show and close model add activitie  */
 let form=document.getElementById('centeredFormModal')
 
@@ -470,67 +492,3 @@ function toggleDD(myDropMenu) {
 </body>
 
 </html>
-
-
-<!-- <section class="form_staf fixed top-10  md:top-20  md:left-80 md:right-80  bg-gray-900 text-white p-8 rounded-lg shadow-lg z-50">
-    <form action="" method="post" class="space-y-6">
-        <div class="flex items-center gap-4 w-full flex-wrap md:flex-nowrap ">
-            <div class="flex flex-col space-y-2 w-full ">
-                <label for="fullname" class="text-sm font-medium">Full Name</label>
-                <input 
-                    type="text" 
-                    id="fullname" 
-                    name="fullname" 
-                    class="w-full px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900">
-            </div>
-
-            <div class="flex flex-col space-y-2 w-full">
-                <label for="Tell" class="text-sm font-medium">Phone</label>
-                <input 
-                    type="text" 
-                    id="Tell" 
-                    name="Tell" 
-                    class="w-full px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900">
-            </div>
-        </div>
-       
-        <div class="flex flex-col space-y-2">
-            <label for="date_naissence" class="text-sm font-medium">Date of Birth</label>
-            <input 
-                type="date" 
-                id="date_naissence" 
-                name="date_naissence" 
-                class="w-full px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900">
-        </div>
-
-        <div class="flex flex-col space-y-2">
-            <label for="groupe" class="text-sm font-medium">Group</label>
-            <input 
-                type="text" 
-                id="groupe" 
-                name="groupe" 
-                class="w-full px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900">
-        </div>
-
-        <div class="flex flex-col space-y-2">
-            <label for="date_recrut" class="text-sm font-medium">Date Recruited</label>
-            <input 
-                type="date" 
-                id="date_recrut" 
-                name="date_recrut" 
-                class="w-full px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900">
-        </div>
-
-        <div class="flex justify-between items-center space-x-4 mt-4">
-            <button 
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition duration-200">
-                Save
-            </button>
-            <button 
-                type="button" 
-                class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded transition duration-200">
-                Close
-            </button>
-        </div>
-    </form>
-</section> -->

@@ -49,8 +49,8 @@ if (isset($_GET['delete_id'])) {
     $sql_delete = "DELETE FROM clients WHERE id_client = '$delete_id'";
     $result=mysqli_query($connect, $sql_delete);
     if($result){
-        header( "Location: index.php");
         $_SESSION['deletemessgae']="Client deleted successfully.!";
+        header( "Location: index.php");
         exit();
     }else{
         $errors[] = "Client No deleted .! ";
@@ -116,7 +116,7 @@ if (!empty($errors)) {
                         <li class="flex-1 md:flex-none md:mr-3">
                             <div class="relative inline-block">
                                 <button onclick="toggleDD('myDropdown')" class="drop-button text-white py-2 px-2"> <span
-                                        class="pr-2"><i class="em em-robot_face"></i></span> Hi, User <svg
+                                        class="pr-2"><i class="em em-robot_face"></i></span> Hi, Admin <svg
                                         class="h-3 fill-current inline" xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 20 20">
                                         <path
@@ -124,8 +124,6 @@ if (!empty($errors)) {
                                     </svg></button>
                                 <div id="myDropdown"
                                     class="dropdownlist absolute bg-gray-800 text-white right-0 mt-3 p-3 overflow-auto z-30 invisible">
-                                    <input type="text" class="drop-search p-2 text-gray-600" placeholder="Search.."
-                                        id="myInput" onkeyup="filterDD('myDropdown','myInput')">
                                     <a href="#"
                                         class="p-2 hover:bg-gray-800 text-white text-sm no-underline hover:no-underline block"><i
                                             class="fa fa-user fa-fw"></i> Profile</a>
@@ -194,7 +192,7 @@ if (!empty($errors)) {
                                 <a href="#"
                                     class="block py-1 md:py-3 pl-0 md:pl-1 align-middle text-white no-underline hover:text-white border-b-2 border-gray-800 hover:border-red-500">
                                     <i class="fa fa-wallet pr-0 md:pr-3"></i><span
-                                        class="pb-1 md:pb-0 text-xs md:text-base text-gray-400 md:text-gray-200 block md:inline-block">Autre</span>
+                                        class="pb-1 md:pb-0 text-xs md:text-base text-gray-400 md:text-gray-200 block md:inline-block">Log Out</span>
                                 </a>
                             </li>
                         </ul>
@@ -423,7 +421,7 @@ if (!empty($errors)) {
                                         </span>
                                     </div>
                                 </div>
-                                <form id='form_id' class="w-full" method="POST" action="./code/update.php">
+                                <form id='form_id' class="w-full" method="POST" action="update.php">
                                     <?php if (!empty($errors)): ?>
                                         <div class="bg-red-200 p-3 mb-6">
                                             <?php foreach ($errors as $err): ?>
@@ -434,7 +432,7 @@ if (!empty($errors)) {
                                     <?php
                                     if(isset($_GET['edit_id'])){
                                         $id_cli=$_GET['edit_id'];
-                                        $sql="SELECT * from where id_client='$id_cli' ";
+                                        $sql="SELECT * from clients where id_client='$id_cli' ";
                                         $result=$connect->query($sql);
                                         $row=$result->fetch_assoc();
                                     }
@@ -582,9 +580,7 @@ if (!empty($errors)) {
                                                         <td class='border px-4 py-2'>{$row['adresse']}</td>
                                                         <td class='border px-4 py-2'>{$row['date_naissance']}</td>
                                                         <td class='border px-4 py-2'>
-                                                            <a  class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-green-500'>
-                                                                <i class='fas fa-eye'></i>
-                                                            </a>
+                                                            
                                                              <a href='index.php?edit_id={$row['id_client']}'
                                                                 class='edit bg-teal-300 cursor-pointer rounded p-1 mx-1 text-blue-500'>
                                                                 <i class='fas fa-edit'></i>
@@ -652,10 +648,6 @@ if (!empty($errors)) {
                 editForm.classList.toggle('hidden');
             })
         });
-
-
-
-
 
 
         let close = document.querySelectorAll('.close-modal')

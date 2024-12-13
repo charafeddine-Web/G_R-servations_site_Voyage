@@ -41,7 +41,7 @@ if(empty($errors)){
 }
 if (!empty($errors)) {
     foreach ($errors as $err) {
-        echo "<div id='allerreur' class='bg-red-500 text-white font-bold py-2  px-4 mb-4 mx-10 md:mx-20 md:ml-80 text-center rounded flex  gap-2'>";
+        echo "<div id='allerreur' class='bg-red-500 text-white font-bold py-2 mt-8 px-4 mb-4 mx-10 md:mx-20 md:ml-80 text-center rounded flex  gap-2'>";
         echo "<p>" . htmlspecialchars($err) . "</p>";
         echo "</div>";
     }
@@ -78,7 +78,7 @@ if (!empty($errors)) {
                     </a>
                 </div>
 
-                <div class="flex flex-1 md:w-1/3 justify-center md:justify-start text-white px-2">
+                <div class="flex flex-1 md:w-1/3 justify-center md:justify-start text-white px-2 pt-4">
                     <span class="relative w-full">
                         <input aria-label="search" type="search" id="search" placeholder="Search"
                             class="w-full bg-gray-900 text-white transition border border-transparent focus:outline-none focus:border-gray-400 rounded py-3 px-2 pl-10 appearance-none leading-normal">
@@ -99,7 +99,7 @@ if (!empty($errors)) {
                         <li class="flex-1 md:flex-none md:mr-3">
                             <div class="relative inline-block">
                                 <button  class="drop-button text-white py-2 px-2"> <span
-                                        class="pr-2"><i class="em em-robot_face"></i></span> Hi, User <svg
+                                        class="pr-2"><i class="em em-robot_face"></i></span> Hi, Admin <svg
                                         class="h-3 fill-current inline" xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 20 20">
                                         <path
@@ -107,8 +107,6 @@ if (!empty($errors)) {
                                     </svg></button>
                                 <div id="myDropdown"
                                     class="dropdownlist absolute bg-gray-800 text-white right-0 mt-3 p-3 overflow-auto z-30 invisible">
-                                    <input type="text" class="drop-search p-2 text-gray-600" placeholder="Search.."
-                                        id="myInput" >
                                     <a href="#"
                                         class="p-2 hover:bg-gray-800 text-white text-sm no-underline hover:no-underline block"><i
                                             class="fa fa-user fa-fw"></i> Profile</a>
@@ -173,7 +171,7 @@ if (!empty($errors)) {
                                 <a href="#"
                                     class="block py-1 md:py-3 pl-0 md:pl-1 align-middle text-white no-underline hover:text-white border-b-2 border-gray-800 hover:border-red-500">
                                     <i class="fa fa-wallet pr-0 md:pr-3"></i><span
-                                        class="pb-1 md:pb-0 text-xs md:text-base text-gray-400 md:text-gray-200 block md:inline-block">Autre</span>
+                                        class="pb-1 md:pb-0 text-xs md:text-base text-gray-400 md:text-gray-200 block md:inline-block">Log Out</span>
                                 </a>
                             </li>
                         </ul>
@@ -385,16 +383,15 @@ if (!empty($errors)) {
                                                     $sql = "SELECT reservations.date_reservation, reservations.status, clients.nom, activites.titre 
                                                     FROM reservations
                                                     JOIN clients ON reservations.id_client = clients.id_client
-                                                    JOIN activites ON reservations.id_activite = activites.id_activite"; 
-                                                   
+                                                    JOIN activites ON reservations.id_activite = activites.id_activite";    
                                             
                                             $result = mysqli_query($connect, $sql);
                                             if($result){
                                                 while ($row = mysqli_fetch_array($result)) {
                                                     echo "<tr>";
-                                                    echo"<td>$row[nom]</td>";
-                                                    echo"<td>$row[titre]</td>";
-                                                    echo"<td>$row[date_reservation]</td>";
+                                                    echo"<td class='border px-4 py-2'>$row[nom]</td>";
+                                                    echo"<td class='border px-4 py-2'>$row[titre]</td>";
+                                                    echo"<td class='border px-4 py-2'>$row[date_reservation]</td>";
                                                     if($row['status'] == "En_attente") {
                                                         echo"<td class='text-indigo-600'>$row[status]</td>";
                                                     }else if( $row["status"] == "Confirmée") {
@@ -404,10 +401,6 @@ if (!empty($errors)) {
                                                     }
                                                     echo " <td class=border px-4 py-2>
                                                        
-                                                        <a
-                                                            class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-blue-500'>
-                                                            <i class='fas fa-edit'></i>
-                                                        </a>
                                                         <a class='bg-teal-300 cursor-pointer rounded p-1 mx-1 text-red-500'>
                                                             <i class='fas fa-trash'></i>
                                                         </a>
@@ -450,7 +443,7 @@ if (!empty($errors)) {
 
 
 
-        /*    show and close model add activitie  */
+        /* ------------------   show and close model  activitie  */
         let form = document.getElementById('centeredFormModal');
         document.getElementById('open-form').addEventListener('click', function () {
             form.classList.toggle('hidden');
@@ -464,6 +457,7 @@ if (!empty($errors)) {
         });
 
         /**********end code **************** */
+
 
         function toggleDD(myDropMenu) {
             document.getElementById(myDropMenu).classList.toggle("invisible");
