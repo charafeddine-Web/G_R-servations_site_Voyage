@@ -1,0 +1,36 @@
+========================================
+| Identification des entités principales |
+========================================
+
+     -Clients
+     -Activités
+     -Réservations
+
+=======================================
+|   Relations entre les entités:       |
+=======================================
+
+- Relation entre Clients et Réservations :
+      -> Un client peut faire plusieurs réservations (1,n).
+         Une réservation est associée à un seul client.
+-Relation entre Activités et Réservations :
+      -> Une activité peut être réservée par plusieurs clients (1,n).
+         Une réservation est associée à une seule activité.
+======================================
+|    les besoins fonctionnels :      |
+====================================== 
+ 
+      * Gestion des Clients :
+              ->S'inscrire avec leurs informations personnelles.
+              ->Consulter leurs réservations passées et en cours.
+ 
+     * Gestion des Activités :	
+             -> L'ajout, la modification et la suppression d'activités.
+             -> L'affichage des activités disponibles avec leurs détails (titre,description....).
+
+     * Gestion des Réservations :
+  
+           -> Permettre aux clients de réserver une activité.
+           -> Mettre à jour automatiquement le nombre de places disponibles après chaque réservation.
+           -> Gérer les statuts de réservation (en attente, confirmée, annulée).
+           -> Gérer les conflits, comme la réservation d'une activité sans places disponibles.	
